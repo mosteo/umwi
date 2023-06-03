@@ -1,0 +1,10 @@
+name = "umwi"
+description = "Unicode Monospace Width Information"
+version = "0.1.0-dev"
+
+authors = ["Alejandro R. Mosteo"]
+maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
+maintainers-logins = ["mosteo"]
+licenses = "LGPL-3.0-or-later"
+website = ""
+tags = ["unicode", "emoji", "monospace", "width", "east", "asian", "width"]
