@@ -1,11 +1,15 @@
-generic
-   Narrow_Context  : Boolean;
+package Umwi with Preelaborate is
+
+   Narrow_Context  : Boolean := True;
    --  See Contexts type below. TL;DR, True for Latin, False for CJK locales.
 
-   Honor_Selectors : Boolean;
+   Honor_Selectors : Boolean := False;
    --  To match wcwidth behavior on Linux, used by most programs and terminals,
    --  set this to false. To be Unicode strict, set to True
-package Umwi is
+
+   Encoding_Error : exception;
+   --  Raised by the subprograms below that take a string when there's some
+   --  unexpected combo like an emoji modifier without a precedent emoji base.
 
    type UTF8_String is new String;
 
@@ -58,11 +62,31 @@ package Umwi is
    type Emoji_Property_Array is array (Emoji_Properties) of Boolean;
 
    Text_Selector         : constant WWChar := WWChar'Val (16#FE0E#);
+   --  This one has all Emoji properties as False
    Presentation_Selector : constant WWChar := WWChar'Val (16#FE0F#);
+   --  This one is Emoji_Component
+
+   subtype Selectors is WWChar range Text_Selector .. Presentation_Selector;
+
+   subtype Combining_Blocks is WWChar with Static_Predicate =>
+     Combining_Blocks in
+       WWChar'Val (16#0300#) .. WWChar'Val (16#036F#) -- diacritic marks
+     | WWChar'Val (16#1AB0#) .. WWChar'Val (16#1AFF#) -- diacritic marks ext
+     | WWChar'Val (16#1DC0#) .. WWChar'Val (16#1DFF#) -- diacritic marks suppl
+     | WWChar'Val (16#20D0#) .. WWChar'Val (16#20FF#) -- diacritic marks symbol
+     | WWChar'Val (16#FE20#) .. WWChar'Val (16#FE2F#) -- half marks
+   ;
+   --  These are not all the combining characters; see Umwi.Combining
+
+   -----------------
+   -- Subprograms --
+   -----------------
 
    function Properties (Symbol : WWChar) return Emoji_Property_Array;
+   --  See also Umwi.Emoji
 
    function Width (Symbol : WWChar) return East_Asian_Width;
+   --  See also Umwi.East_Asian_Width
 
    function Width (Symbol  : WWChar;
                    Context : Contexts := (if Narrow_Context
@@ -70,33 +94,22 @@ package Umwi is
                                           else Wide))
                    return Widths;
 
-   function Width (Text           : WWString;
-                   Context        : Contexts := (if Narrow_Context
-                                                 then Narrow
-                                                 else Wide);
-                   Honor_Selector : Boolean := Honor_Selectors)
-                   return Natural;
+   function Extra_Width (Text           : WWString;
+                         Context        : Contexts := (if Narrow_Context
+                                                       then Narrow
+                                                       else Wide);
+                         Honor_Selector : Boolean := Honor_Selectors)
+                         return Natural;
+   --  Will return the EXTRA width incurred by emoji sequences ONLY. You will
+   --  still need the base length of Text properly computed by some proper
+   --  Unicode library.
 
-   function Width (Text           : UTF8_String;
-                   Context        : Contexts := (if Narrow_Context
-                                                 then Narrow
-                                                 else Wide);
-                   Honor_Selector : Boolean := Honor_Selectors)
-                   return Natural;
-
-private
-
-   function Width (Symbol  : WWChar;
-                   Context : Contexts := (if Narrow_Context
-                                          then Narrow
-                                          else Wide))
-                   return Widths
-   is (case East_Asian_Width'(Width (Symbol)) is
-          when A      =>
-         (case Context is
-             when Narrow => 1,
-             when Wide   => 2),
-          when F | W  => 2,
-          when others => 1);
+   function Extra_Width (Text           : UTF8_String;
+                         Context        : Contexts := (if Narrow_Context
+                                                       then Narrow
+                                                       else Wide);
+                         Honor_Selector : Boolean := Honor_Selectors)
+                         return Natural;
+   --  Same as above
 
 end Umwi;
