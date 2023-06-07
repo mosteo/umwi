@@ -3,9 +3,19 @@ package Umwi with Preelaborate is
    Narrow_Context  : Boolean := True;
    --  See Contexts type below. TL;DR, True for Latin, False for CJK locales.
 
-   Honor_Selectors : Boolean := False;
+   Honor_Emoji_Selectors : Boolean := False;
    --  To match wcwidth behavior on Linux, used by most programs and terminals,
-   --  set this to false. To be Unicode strict, set to True
+   --  set this to false. To be Unicode strict, set to True. This allows to
+   --  force a 1-wide b/w emoji into a 2-wide color emoji and vice versa.
+
+   Honor_Emoji_Modifiers : Boolean := True;
+   --  These change the tone or combine with a previous emoji base. Not all
+   --  fonts/terminals do these combinations, and instead show the skin tone
+   --  as a square.
+
+   --  Composing Unicode code points are always considered to be of size 0
+   --  (they combine with a previous base character to form a graphene
+   --  cluster, e.j. 'a' + '´' = 'á'
 
    Encoding_Error : exception;
    --  Raised by the subprograms below that take a string when there's some
@@ -34,7 +44,7 @@ package Umwi with Preelaborate is
 
    subtype Widths is Positive range 1 .. 2;
 
-   type Emoji_Properties is
+   type All_Emoji_Properties is
      (Emoji,
       Emoji_Presentation,
       Emoji_Modifier_Base,
@@ -59,7 +69,7 @@ package Umwi with Preelaborate is
 
    --  I'm not aware of any non-wide with Emoji_Presentation symbol.
 
-   type Emoji_Property_Array is array (Emoji_Properties) of Boolean;
+   type Emoji_Property_Array is array (All_Emoji_Properties) of Boolean;
 
    Text_Selector         : constant WWChar := WWChar'Val (16#FE0E#);
    --  This one has all Emoji properties as False
@@ -78,11 +88,26 @@ package Umwi with Preelaborate is
    ;
    --  These are not all the combining characters; see Umwi.Combining
 
+   subtype Zero_Width_Emoji_Component is WWChar with Static_Predicate =>
+     Zero_Width_Emoji_Component in
+       WWChar'Val (16#0200D#) -- Zero-width joiner
+     | WWChar'Val (16#E0020#) .. WWChar'Val (16#E007F#) -- tagspace / canceltag
+   ;
+   --  Some emoji components without a preceding emoji are valid chars (e.g.
+   --  '#') but others never have width no matter the preceding thing
+
+   ----------------
+   -- Properties --
+   ----------------
+
+   --  See Umwi.Properties for types that use information generated from
+   --  Unicode specification documents.
+
    -----------------
    -- Subprograms --
    -----------------
 
-   function Properties (Symbol : WWChar) return Emoji_Property_Array;
+   function Emoji_Properties (Symbol : WWChar) return Emoji_Property_Array;
    --  See also Umwi.Emoji
 
    function Width (Symbol : WWChar) return East_Asian_Width;
@@ -94,22 +119,23 @@ package Umwi with Preelaborate is
                                           else Wide))
                    return Widths;
 
-   function Extra_Width (Text           : WWString;
-                         Context        : Contexts := (if Narrow_Context
-                                                       then Narrow
-                                                       else Wide);
-                         Honor_Selector : Boolean := Honor_Selectors)
-                         return Natural;
-   --  Will return the EXTRA width incurred by emoji sequences ONLY. You will
-   --  still need the base length of Text properly computed by some proper
-   --  Unicode library.
+   function Length (Text           : WWString;
+                    Context        : Contexts := (if Narrow_Context
+                                                  then Narrow
+                                                  else Wide);
+                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
+                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
+                    return Natural;
+   --  This is Length in the sense of fixed-width font slots used. Takes into
+   --  account grapheme clusters (considered as one slot).
 
-   function Extra_Width (Text           : UTF8_String;
-                         Context        : Contexts := (if Narrow_Context
-                                                       then Narrow
-                                                       else Wide);
-                         Honor_Selector : Boolean := Honor_Selectors)
-                         return Natural;
+   function Length (Text           : UTF8_String;
+                    Context        : Contexts := (if Narrow_Context
+                                                  then Narrow
+                                                  else Wide);
+                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
+                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
+                    return Natural;
    --  Same as above
 
 end Umwi;
