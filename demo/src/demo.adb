@@ -37,13 +37,13 @@ begin
           "narrow emoji with wide presentation selector");
    Print ("--" & C (16#1F1EA#) & C (16#1F1F8#), "ES country flag");
    Print ("--🧑" & C (16#1F3Fb#), "face plus skin tone");
-   Print ("9️⃣9️⃣", "keycap sequence base+presentation+keycap");
+   Print ("9️⃣9️⃣", "keycap sequence base+presentation+keycap x2");
    Print ("---" & C (16#39#) & C (16#20E3#),
           "keycap sequence base+keycap (invalid)");
    Print ("---👨‍👩‍👧‍👦",
-          "family (man+woman+etc, with zero-width joiner in between");
+          "family (man+woman+etc, with zero-width joiner in between)");
    Print ("---👨‍👩‍x",
-          "family (man+woman+etc, with zero-width joiner in between");
+          "family (man+woman+etc, with zero-width joiner in between)");
 
    Umwi.Honor_Emoji_Selectors := False;
    New_Line;

@@ -84,6 +84,9 @@ package Umwi with Preelaborate is
    --  This indicates that the next emoji should be combined with the precedent
    --  one. Not all combos are legal, but we will consider them as so.
 
+   Enclosing_Keycap      : constant WWChar := WWChar'Val (16#2E03#);
+   --  Box around previous char to simulate a keyboard key
+
    subtype Selectors is WWChar range Text_Selector .. Presentation_Selector;
 
    subtype Combining_Blocks is WWChar with Static_Predicate =>
@@ -100,10 +103,13 @@ package Umwi with Preelaborate is
      WWChar'Val (16#1F1E6#) .. WWChar'Val (16#1F1FF#);
    --  These form country codes that result in flags
 
+   subtype Tag is WWChar range
+     WWChar'Val (16#E0020#) .. WWChar'Val (16#E007F#);
+
+   Terminal_Tag : constant WWChar := WWChar'Val (16#E007F#);
+
    subtype Zero_Width_Emoji_Component is WWChar with Static_Predicate =>
-     Zero_Width_Emoji_Component in
-       Zero_Width_Joiner
-     | WWChar'Val (16#E0020#) .. WWChar'Val (16#E007F#) -- tagspace / canceltag
+     Zero_Width_Emoji_Component in Zero_Width_Joiner | Tag
    ;
    --  Some emoji components without a preceding emoji are valid chars (e.g.
    --  '#') but others never have width no matter the preceding thing
@@ -139,14 +145,14 @@ package Umwi with Preelaborate is
                     Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
                     return Natural;
    --  This is Length in the sense of fixed-width font slots used. Takes into
-   --  account grapheme clusters (considered as one slot). Implements the
-   --  EBNF at https://unicode.org/reports/tr51/proposed.html#EBNF_and_Regex
-   --  Displaying engines that deviate from that EBNF will result in wrong
-   --  lengths. In addition, when Honor_Selector, two-point sequences of
-   --  emoji+selector are considered. If not Honor_Modifier, the EBNF will not
-   --  combine skin tones (Emoji_Modifier code points) and break the sequence
-   --  at that point. An emoji matched by the EBNF, no matter how long in
-   --  actual unicode points, will occupy 2 slots.
+   --  account grapheme clusters (considered as one slot). Implements the EBNF
+   --  at https://unicode.org/reports/tr51/#EBNF_and_Regex. Displaying engines
+   --  that deviate from that EBNF will result in wrong lengths. In addition,
+   --  when Honor_Selector, two-point sequences of emoji+selector are
+   --  considered. If not Honor_Modifier, the EBNF will not combine skin tones
+   --  (Emoji_Modifier code points) and break the sequence at that point. An
+   --  emoji matched by the EBNF, no matter how long in actual unicode points,
+   --  will occupy 2 slots.
 
    function Length (Text           : UTF8_String;
                     Context        : Contexts := (if Narrow_Context
@@ -156,5 +162,73 @@ package Umwi with Preelaborate is
                     Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
                     return Natural;
    --  Same as above
+
+private
+
+   --  Helper type to implement the recursive parser
+
+   type Match (Length : Natural) is tagged record
+      Text  : WWString (1 .. Length); -- Unicode codepoints matched
+      Width : Natural;                -- their actual visible width
+   end record;
+   --  The Text field is not needed, may come in handy for debugging
+
+   -------------
+   -- Matched --
+   -------------
+
+   function Matched (Width : Natural; Text : WWString) return Match
+   is (Length => Text'Length,
+       Text   => Text,
+       Width  => Width);
+
+   -------------
+   -- Matched --
+   -------------
+
+   function Matched (Width : Natural; Text : WWChar) return Match
+   is (Length => 1,
+       Text   => (1 .. 1 => Text),
+       Width  => Width);
+
+   --------------
+   -- No_Match --
+   --------------
+
+   function No_Match return Match is (Length => 0, Text => "", Width => 0);
+
+   ------------
+   -- Append --
+   ------------
+
+   function Append (This, That : Match) return Match
+   is (Length => This.Length + That.Length,
+       Text   => This.Text & That.Text,
+       Width  => (if This.Width = 1
+                  and then That.Length > 0
+                  and then That.Text (That.Text'First) = Presentation_Selector
+                  then 2
+                  else This.Width));
+
+   --------------
+   -- And_Then --
+   --------------
+
+   function And_Then (This   : Match;
+                      Offset : Natural;
+                      That   : access function (Offset : Natural) return Match)
+                      return Match
+   is (if This /= No_Match
+       then This.Append (That (Offset + This.Length))
+       else No_Match);
+
+   -------------
+   -- Or_Else --
+   -------------
+
+   function Or_Else (This, That : Match) return Match
+   is (if This.Length > 0
+       then This
+       else That);
 
 end Umwi;
