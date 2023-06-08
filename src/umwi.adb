@@ -48,28 +48,29 @@ package body Umwi is
                     Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
                     return Natural
    is
-      Prev_Width    : Natural := 0;
-      Prev_Is_Emoji : Boolean := False;
-      --  Width of the previously seen base emoji
+      Prev_Width : Natural := 0; -- Previous character width
+      Length     : Integer := 0;
    begin
-      return Length : Natural := 0 do
-         for Char of Text loop
-            if Char = Text_Selector and then Prev_Width = 2 then
-               --  We are turning a color emoji into a b/w smaller one
-               Length := Length - 1;
-
-            elsif Char = Presentation_Selector and then Prev_Width = 1 then
-               --  We are turning a b/w emoji into a color wider one
-               Length := Length + 1;
-
-            elsif Char in Generated.Emoji then
-               --  This is a new emoji, with its own default width (1 or 2)
-               Prev_Is_Emoji := True;
-               Length        := Length + Width (Char, Context);
-               if Honor_Selector then
-                  --  Keep track of its width in case it's later modified
-                  Prev_Width := Width (Char, Context);
+      for I in Text'Range loop
+         declare
+            Char : WWChar renames Text (I);
+         begin
+            if Char = Text_Selector then
+               if Honor_Selector and then Prev_Width = 2 then
+                  --  We are turning a color emoji into a b/w smaller one
+                  Length := Length - 1;
                end if;
+
+            elsif Char = Presentation_Selector then
+               if Honor_Selector and then Prev_Width = 1 then
+                  --  We are turning a b/w emoji into a color wider one
+                  Length := Length + 1;
+               end if; ‍
+
+            elsif Char = Zero_Width_Joiner and then I < Text'Last then
+               if
+               Length := Length - Width (Text (I + 1));
+               --  Remove the length that will be added in the next iteration
 
             elsif Char in Generated.Emoji_Modifier then
                --  These are the skin tones, that sometimes aren't honored and
@@ -77,6 +78,12 @@ package body Umwi is
                if not Honor_Modifier then
                   Length := Length + 1;
                end if;
+
+            elsif Char in Regional_Indicator_Emoji_Component then
+               --  These, when isolated, are narrow, and when combined are a
+               --  wide flag, so they can be counted independently, and reset
+               --  composition.
+               Length := Length + Width (Char);
 
             elsif Char in Zero_Width_Emoji_Component then
                --  These don't use space no matter what
@@ -86,7 +93,7 @@ package body Umwi is
                --  This is an emoji modifier so it shouldn't count, unless we
                --  do not honor them (as some formatters indeed do, printing
                --  them separately) or the preceding one is not an emoji
-               if not Honor_Modifier or else not Prev_Is_Emoji then
+               if not Honor_Modifier then
                   Length := Length + 1;
                end if;
 
@@ -99,12 +106,20 @@ package body Umwi is
                --  By elimination, it must be a regular character. We aren't
                --  considering undefined code points to be invisible (hopefully
                --  they'll be shown somehow).
-               Prev_Is_Emoji := False;
-               Length        := Length + 1;
+               Length := Length + Width (Char, Context);
             end if;
 
-         end loop;
-      end return;
+            Prev_Width := Width (Char, Context);
+
+         end;
+      end loop;
+
+      if Length < 0 then
+         Length := 0;
+         --  Could happen with some illegal sequences using joiners and so
+      end if;
+
+      return Length;
    end Length;
 
    ------------

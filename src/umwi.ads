@@ -1,5 +1,9 @@
 package Umwi with Preelaborate is
 
+   --  NOTE: this library isn't robust against illegal unicode sequences.
+   --  In those cases it will likely report a length different from what
+   --  is actually printed to the console.
+
    Narrow_Context  : Boolean := True;
    --  See Contexts type below. TL;DR, True for Latin, False for CJK locales.
 
@@ -76,6 +80,10 @@ package Umwi with Preelaborate is
    Presentation_Selector : constant WWChar := WWChar'Val (16#FE0F#);
    --  This one is Emoji_Component
 
+   Zero_Width_Joiner     : constant WWChar := WWChar'Val (16#200D#);
+   --  This indicates that the next emoji should be combined with the precedent
+   --  one. Not all combos are legal, but we will consider them as so.
+
    subtype Selectors is WWChar range Text_Selector .. Presentation_Selector;
 
    subtype Combining_Blocks is WWChar with Static_Predicate =>
@@ -88,9 +96,13 @@ package Umwi with Preelaborate is
    ;
    --  These are not all the combining characters; see Umwi.Combining
 
+   subtype Regional_Indicator_Emoji_Component is WWChar range
+     WWChar'Val (16#1F1E6#) .. WWChar'Val (16#1F1FF#);
+   --  These form country codes that result in flags
+
    subtype Zero_Width_Emoji_Component is WWChar with Static_Predicate =>
      Zero_Width_Emoji_Component in
-       WWChar'Val (16#0200D#) -- Zero-width joiner
+       Zero_Width_Joiner
      | WWChar'Val (16#E0020#) .. WWChar'Val (16#E007F#) -- tagspace / canceltag
    ;
    --  Some emoji components without a preceding emoji are valid chars (e.g.
@@ -127,7 +139,14 @@ package Umwi with Preelaborate is
                     Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
                     return Natural;
    --  This is Length in the sense of fixed-width font slots used. Takes into
-   --  account grapheme clusters (considered as one slot).
+   --  account grapheme clusters (considered as one slot). Implements the
+   --  EBNF at https://unicode.org/reports/tr51/proposed.html#EBNF_and_Regex
+   --  Displaying engines that deviate from that EBNF will result in wrong
+   --  lengths. In addition, when Honor_Selector, two-point sequences of
+   --  emoji+selector are considered. If not Honor_Modifier, the EBNF will not
+   --  combine skin tones (Emoji_Modifier code points) and break the sequence
+   --  at that point. An emoji matched by the EBNF, no matter how long in
+   --  actual unicode points, will occupy 2 slots.
 
    function Length (Text           : UTF8_String;
                     Context        : Contexts := (if Narrow_Context
