@@ -1,0 +1,21 @@
+name = "generator"
+description = "Generate the proper bodies based on Unicode spec"
+version = "0.1.0-dev"
+
+authors = ["Alejandro R. Mosteo"]
+maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
+maintainers-logins = ["mosteo"]
+licenses = "GPL-3.0-only"
+website = ""
+tags = ["unicode"]
+
+executables = ["generator"]
+
+[[depends-on]]
+umwi = "*"
+
+[[pins]]
+umwi = { path='..' }
+
+[[depends-on]]
+aaa = "~0.2.6"

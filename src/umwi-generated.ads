@@ -1,11 +1,9 @@
 package Umwi.Generated with Preelaborate is
 
-   subtype Combining is WWChar
-     with Static_Predicate => Combining in
+   subtype Combining is WWChar with Static_Predicate => Combining in
        Combining_Blocks;
 
-   subtype Emoji is WWChar
-     with Static_Predicate => Emoji in
+   subtype Emoji is WWChar with Static_Predicate => Emoji in
        WWChar'Last .. WWChar'First;
 
    subtype Emoji_Presentation is WWChar
@@ -16,8 +14,7 @@ package Umwi.Generated with Preelaborate is
      with Static_Predicate => Emoji_Modifier_Base in
        WWChar'Last .. WWChar'First;
 
-   subtype Emoji_Modifier is WWChar
-     with Static_Predicate => Emoji_Modifier in
+   subtype Emoji_Modifier is WWChar with Static_Predicate => Emoji_Modifier in
        WWChar'Last .. WWChar'First;
 
    subtype Emoji_Component is WWChar

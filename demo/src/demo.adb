@@ -28,8 +28,8 @@ begin
    Print ("xxxa" & C (16#0308#), "combining diacritic");
    Print (C (16#0308#) & "1234", "combining diacritic as first character");
    Print ("😀😀", "Emoji with Default wide Presentation");
-   Print ("😀" & Umwi.Text_Selector & "😀" & Umwi.Text_Selector & "--",
-          "Emoji with text selector");
+   Print ("---" & C (16#264D#) & Umwi.Text_Selector,
+          "Emoji with text selector (valid)");
    Print ("★★★★", "emoji with default narrow presentation");
    Print ("☄️☄️☄️☄️", "emoji with default narrow presentation");
    Print ("☄️" & Umwi.Presentation_Selector
@@ -40,9 +40,7 @@ begin
    Print ("9️⃣9️⃣", "keycap sequence base+presentation+keycap x2");
    Print ("---" & C (16#39#) & C (16#20E3#),
           "keycap sequence base+keycap (invalid)");
-   Print ("---👨‍👩‍👧‍👦",
-          "family (man+woman+etc, with zero-width joiner in between)");
-   Print ("---👨‍👩‍x",
+   Print ("--👨‍👩‍👧‍👦",
           "family (man+woman+etc, with zero-width joiner in between)");
 
    Umwi.Honor_Emoji_Selectors := False;
