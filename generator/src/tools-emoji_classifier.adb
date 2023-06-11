@@ -8,15 +8,6 @@ package body Tools.Emoji_Classifier is
 
    First : Boolean := True;
 
-   -------
-   -- C --
-   -------
-
-   function C (X : String) return WWString is
-   begin
-      return Decode ("WWChar'Val (16#" & X & "#)");
-   end C;
-
    --------------
    -- Classify --
    --------------
@@ -45,7 +36,7 @@ package body Tools.Emoji_Classifier is
                         else "")
                      );
             Info.Delete_First;
-            Put_Line (F.all, "      -- " & Decode (Info.Flatten ('#')));
+            Put_Line (F.all, "      --  " & Decode (Info.Flatten ('#')));
             First := False;
          end if;
       end;

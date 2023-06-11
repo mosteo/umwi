@@ -1,5 +1,5 @@
-with Ada.Wide_Wide_Text_IO;
-
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
+use  Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Ada.Strings.Wide_Wide_Fixed;
 
 package body Tools is
@@ -8,6 +8,15 @@ package body Tools is
 
    package Num_IO is new Ada.Wide_Wide_Text_IO.Integer_IO (Code_Point);
    use Num_IO;
+
+   -------
+   -- C --
+   -------
+
+   function C (X : String) return WWString is
+   begin
+      return Decode ("WWChar'Val (16#" & X & "#)");
+   end C;
 
    ----------
    -- Trim --

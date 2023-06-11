@@ -47,6 +47,9 @@ package Tools is
    procedure Iterate (File : String;
                       Doing : access procedure (Line : WWString));
 
+   function C (X : String) return WWString;
+   --  Take an hexa val like 0123 and return "Character'Val (16#0123#)"
+
 private
 
    type Range_Maker is tagged record
