@@ -82,7 +82,7 @@ procedure Generator is
    end EAW;
 
 begin
-   Create (F, Name => "gen.ads");
+   Create (F, Name => "../src/umwi-generated.ads");
 
    --  Preamble
    Put_Line ("pragma Style_Checks (Off);");
