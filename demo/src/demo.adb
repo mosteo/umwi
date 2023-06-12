@@ -1,4 +1,7 @@
 with Umwi;
+
+with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
+use  Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 
 procedure Demo is
@@ -6,6 +9,11 @@ procedure Demo is
    procedure Print (Text : Umwi.WWString; Descr : Umwi.WWString := "") is
       Length : constant Natural := Umwi.Length (Text);
    begin
+      if Length /= 4 then
+         raise Program_Error
+           with "Length check failed for " & Encode (Text);
+      end if;
+
       Put_Line (Text & ":" & Length'Wide_Wide_Image & ": '"
                 & (if Descr /= ""
                   then " # " & Descr
