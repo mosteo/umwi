@@ -16,3 +16,6 @@ umwi = "*"
 
 [[pins]]
 umwi = { path='..' }
+
+[build-switches]
+"*".Ada_Version = "Ada2022"

@@ -42,6 +42,9 @@ begin
           "keycap sequence base+keycap (invalid)");
    Print ("--👨‍👩‍👧‍👦",
           "family (man+woman+etc, with zero-width joiner in between)");
+   Print ("ばか", "japanese hiragana");
+   Print ("バカ", "japanese katakana");
+   Print ("馬鹿", "kanji");
 
    Umwi.Honor_Emoji_Selectors := False;
    New_Line;

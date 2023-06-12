@@ -171,74 +171,109 @@ private
    --  Helper type to implement the recursive parser
 
    type Match (Length : Natural) is tagged record
-      Text  : WWString (1 .. Length); -- Unicode codepoints matched
-      Width : Natural;                -- their actual visible width
+      Text   : WWString (1 .. Length);
+      Pos    : Positive;
+      Eaten  : Natural;
+      Width  : Natural; -- Actual visible width
+      HM, HS : Boolean; -- Honor_Modifier, Honor_Selector
    end record;
-   --  The Text field is not needed, may come in handy for debugging
 
-   -------------
-   -- Matched --
-   -------------
+   type Matcher is access function (Prev : Match) return Match;
 
-   function Matched (Width : Natural; Text : WWString) return Match
-   is (Length => Text'Length,
-       Text   => Text,
-       Width  => Width);
+   -------
+   -- I --
+   -------
 
-   -------------
-   -- Matched --
-   -------------
+   function I (This : Match) return Natural
+   is (This.Pos + This.Eaten);
 
-   function Matched (Width : Natural; Text : WWChar) return Match
-   is (Length => 1,
-       Text   => (1 .. 1 => Text),
-       Width  => Width);
+   ---------------
+   -- Has_Input --
+   ---------------
+
+   function Has_Input (This : Match) return Boolean
+   is (This.I <= This.Text'Last);
+
+   ----------
+   -- Next --
+   ----------
+
+   function Next (This : Match) return WWChar
+   is (This.Text (This.I));
+
+   -----------
+   -- Empty --
+   -----------
+
+   function Empty (Input          : WWString;
+                   Start          : Positive;
+                   Honor_Modifier,
+                   Honor_Selector : Boolean)
+                   return Match
+   is (Length => Input'Length,
+       Pos    => Start,
+       Eaten  => 0,
+       Text   => Input,
+       Width  => 0,
+       HM     => Honor_Modifier,
+       HS     => Honor_Selector);
+   --  To be used at the very beginning of matching
 
    --------------
    -- No_Match --
    --------------
 
-   function No_Match return Match is (Length => 0, Text => "", Width => 0);
+   function No_Match return Match
+   is (Length => 0,
+       Pos   => 1,
+       Eaten => 0,
+       Text => "",
+       Width => 0,
+       HM => False,
+       HS => False);
+   --  To be used after matching has started
 
-   ------------
-   -- Append --
-   ------------
+   --------------
+   -- Matching --
+   --------------
 
-   function Append (This, That : Match; Honor_Selector : Boolean) return Match
-   is (Length => This.Length + That.Length,
-       Text   => This.Text & That.Text,
-       Width  => (if This.Width = 1
-                  and then Honor_Selector
-                  and then That.Length > 0
-                  and then That.Text (That.Text'First) = Presentation_Selector
-                  then 2
-                  else This.Width));
-
-   type Matcher is access function (Offset : Natural) return Match;
+   function Matching (This   : Match;
+                      Width  : Natural;
+                      Length : Positive) return Match
+   is (Match'(This with delta
+       Eaten => This.Eaten + Length,
+       Width  => (case This.Width is
+                     when 0     => Width,
+                     when 2     => 2,
+                     when 1     =>
+                       (if This.HS and then This.Next = Presentation_Selector
+                        then 2
+                        else 1),
+                     when others => raise Program_Error)));
 
    --------------
    -- And_Then --
    --------------
 
+   function And_Then (This : Match;
+                      That : Matcher)
+                      return Match;
+
+   ----------------
+   -- Maybe_Then --
+   ----------------
+
    function Maybe_Then (This           : Match;
-                        Offset         : Natural;
-                        --  must be the same as This received
-                        That           : Matcher;
-                        Honor_Selector : Boolean)
-                      return Match
-   is (if This /= No_Match
-       then This.Append (That (Offset + This.Length), Honor_Selector)
-       else No_Match);
+                        That           : Matcher)
+                        return Match;
+
+   type Alternatives is array (Positive range <>) of Matcher;
 
    -------------
    -- Or_Else --
    -------------
 
-   function Or_Else (This   : Match;
-                     Offset : Natural;
-                     That   : Matcher) return Match
-   is (if This.Length > 0
-       then This
-       else That (Offset));
+   function First_Of (This  : Match;
+                      Those : Alternatives) return Match;
 
 end Umwi;

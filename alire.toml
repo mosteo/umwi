@@ -8,3 +8,6 @@ maintainers-logins = ["mosteo"]
 licenses = "LGPL-3.0-or-later"
 website = ""
 tags = ["unicode", "emoji", "monospace", "width", "east", "asian", "width", "grapheme", "cluster", "combining"]
+
+[build-switches]
+"*".Ada_Version = "Ada2022"
