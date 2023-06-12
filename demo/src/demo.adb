@@ -31,12 +31,12 @@ begin
    Print ("---" & C (16#264D#) & Umwi.Text_Selector,
           "Emoji with text selector (valid)");
    Print ("★★★★", "emoji with default narrow presentation");
-   Print ("☄️☄️☄️☄️", "emoji with default narrow presentation");
-   Print ("☄️" & Umwi.Presentation_Selector
-          & "☄️" & Umwi.Presentation_Selector,
+   Print ("☄☄☄☄", "emoji with default narrow presentation");
+   Print ("☄" & Umwi.Presentation_Selector
+          & "☄" & Umwi.Presentation_Selector,
           "narrow emoji with wide presentation selector");
    Print ("--" & C (16#1F1EA#) & C (16#1F1F8#), "ES country flag");
-   Print ("--🧑" & C (16#1F3Fb#), "face plus skin tone");
+   Print ("--🧑" & C (16#1F3FB#), "face plus skin tone");
    Print ("9️⃣9️⃣", "keycap sequence base+presentation+keycap x2");
    Print ("---" & C (16#39#) & C (16#20E3#),
           "keycap sequence base+keycap (invalid)");
@@ -49,7 +49,9 @@ begin
    Put_Line ("Counts still should always be 4.");
    New_Line;
 
-   Print ("--☄️" & Umwi.Presentation_Selector
-          & "☄️" & Umwi.Presentation_Selector,
+   Print ("--☄" & Umwi.Presentation_Selector
+          & "☄" & Umwi.Presentation_Selector,
           "narrow emoji with wide presentation selector");
+   Print ("--" & C (16#264D#) & Umwi.Text_Selector,
+          "wide emoji with text selector (valid)");
 end Demo;

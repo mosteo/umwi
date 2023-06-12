@@ -2,7 +2,10 @@ package Umwi with Preelaborate is
 
    --  NOTE: this library isn't robust against illegal unicode sequences.
    --  In those cases it will likely report a length different from what
-   --  is actually printed to the console.
+   --  is actually printed to the console, as interpretation will be open.
+
+   Debug : Boolean := False;
+   --  Set to true to see the trace of the grammar parser
 
    Narrow_Context  : Boolean := True;
    --  See Contexts type below. TL;DR, True for Latin, False for CJK locales.
@@ -201,34 +204,41 @@ private
    -- Append --
    ------------
 
-   function Append (This, That : Match) return Match
+   function Append (This, That : Match; Honor_Selector : Boolean) return Match
    is (Length => This.Length + That.Length,
        Text   => This.Text & That.Text,
        Width  => (if This.Width = 1
+                  and then Honor_Selector
                   and then That.Length > 0
                   and then That.Text (That.Text'First) = Presentation_Selector
                   then 2
                   else This.Width));
 
+   type Matcher is access function (Offset : Natural) return Match;
+
    --------------
    -- And_Then --
    --------------
 
-   function And_Then (This   : Match;
-                      Offset : Natural;
-                      That   : access function (Offset : Natural) return Match)
+   function Maybe_Then (This           : Match;
+                        Offset         : Natural;
+                        --  must be the same as This received
+                        That           : Matcher;
+                        Honor_Selector : Boolean)
                       return Match
    is (if This /= No_Match
-       then This.Append (That (Offset + This.Length))
+       then This.Append (That (Offset + This.Length), Honor_Selector)
        else No_Match);
 
    -------------
    -- Or_Else --
    -------------
 
-   function Or_Else (This, That : Match) return Match
+   function Or_Else (This   : Match;
+                     Offset : Natural;
+                     That   : Matcher) return Match
    is (if This.Length > 0
        then This
-       else That);
+       else That (Offset));
 
 end Umwi;

@@ -48,13 +48,12 @@ package body Umwi is
                     Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
                     return Natural
    is
-      I : Integer := Text'First;
 
       -------------------
       -- Emoji_To_Text --
       -------------------
 
-      function Emoji_To_Text return Match is
+      function Emoji_To_Text (I : Natural) return Match is
          --  Matches a plain emoji with text presentation selector
       begin
          if I < Text'Last
@@ -74,7 +73,7 @@ package body Umwi is
       -- Not_An_Emoji --
       ------------------
 
-      function Not_An_Emoji return Match is
+      function Not_An_Emoji (I : Natural) return Match is
          J : Natural := I + 1;
       begin
          if Text (I) in Generated.Emoji then
@@ -97,14 +96,14 @@ package body Umwi is
       -- Flag_Sequence --
       -------------------
 
-      function Flag_Sequence (Offset : Natural) return Match is
+      function Flag_Sequence (I : Natural) return Match is
          subtype RI is Umwi.Regional_Indicator_Emoji_Component;
       begin
-         if I + Offset < Text'Last
-           and then Text (I + Offset) in RI
-           and then Text (I + Offset + 1) in RI
+         if I < Text'Last
+           and then Text (I) in RI
+           and then Text (I + 1) in RI
          then
-            return Matched (2, Text (I + Offset .. I + Offset + 1));
+            return Matched (2, Text (I .. I + 1));
          end if;
 
          return No_Match;
@@ -114,13 +113,13 @@ package body Umwi is
       -- Emoji --
       -----------
 
-      function Emoji (Offset : Natural) return Match is
+      function Emoji (I : Natural) return Match is
       begin
-         if I + Offset <= Text'Last
-           and then Text (I + Offset) in Generated.Emoji
+         if I <= Text'Last
+           and then Text (I) in Generated.Emoji
          then
-            return Matched (Width (Text (I + Offset), Context),
-                            Text (I + Offset));
+            return Matched (Width (Text (I), Context),
+                            Text (I));
          else
             return No_Match;
          end if;
@@ -130,9 +129,9 @@ package body Umwi is
       -- Code_Point --
       ----------------
 
-      function Code_Point (Target : WWChar; Offset : Natural) return Match is
+      function Code_Point (Target : WWChar; I : Natural) return Match is
       begin
-         if I + Offset <= Text'Last and then Text (I + Offset) = Target then
+         if I <= Text'Last and then Text (I) = Target then
             return Matched (0, Target);
          else
             return No_Match;
@@ -143,115 +142,146 @@ package body Umwi is
       -- Emoji_Modifier --
       --------------------
 
-      function Emoji_Modifier (Offset : Natural) return Match is
+      function M_Emoji_Modifier (I : Natural) return Match is
       begin
          if not Honor_Modifier then
             return No_Match;
          end if;
 
-         if I + Offset <= Text'Last
-           and then Text (I + Offset) in Generated.Emoji_Modifier
+         if I  <= Text'Last
+           and then Text (I) in Generated.Emoji_Modifier
          then
-            return Matched (0, Text (I + Offset));
+            return Matched (0, Text (I));
          else
             return No_Match;
          end if;
-      end Emoji_Modifier;
+      end M_Emoji_Modifier;
 
       ------------------------
       -- M_Enclosing_Keycap --
       ------------------------
 
-      function M_Enclosing_Keycap (Offset : Natural) return Match is
+      function M_Enclosing_Keycap (I : Natural) return Match is
       begin
-         return Code_Point (Enclosing_Keycap, Offset);
+         return Code_Point (Enclosing_Keycap, I);
       end M_Enclosing_Keycap;
 
       ------------------
       -- Tag_Modifier --
       ------------------
 
-      function Tag_Modifier (Offset : Natural) return Match is
+      function Tag_Modifier (I : Natural) return Match is
          Len : Natural := 0;
       begin
-         while I + Offset <= Text'Last loop
-            if Text (I + Offset) in Tag then
+         while I <= Text'Last loop
+            if Text (I) in Tag then
                Len := Len + 1;
             end if;
 
-            exit when Text (I + Offset) = Terminal_Tag
-              or else Text (I + Offset) not in Tag;
+            exit when Text (I) = Terminal_Tag
+              or else Text (I) not in Tag;
          end loop;
 
          if Len > 0 then
-            return Matched (0, Text (I + Offset .. I + Offset + Len));
+            return Matched (0, Text (I .. I + Len));
          else
             return No_Match;
          end if;
       end Tag_Modifier;
 
+      -------------------------
+      -- Presentation_Keycap --
+      -------------------------
+
+      function Presentation_Keycap (I : Natural) return Match is
+      begin
+         if I > Text'Length then
+            return No_Match;
+         else
+            return
+              Code_Point (Presentation_Selector, I)
+              .Maybe_Then (I, M_Enclosing_Keycap'Unrestricted_Access,
+                           Honor_Selector);
+                           --  The Keycap is optional!
+         end if;
+      end Presentation_Keycap;
+
       ------------------------
       -- Emoji_Modification --
       ------------------------
 
-      function Emoji_Modification (Offset : Natural) return Match is
+      function Emoji_Modification (I : Natural) return Match is
       begin
          return No_Match
-           .Or_Else (Emoji_Modifier (Offset))
-           .Or_Else (Code_Point (Presentation_Selector, Offset)
-                     .And_Then (Offset + 1, M_Enclosing_Keycap'Access))
-           .Or_Else (Tag_Modifier (Offset));
+           .Or_Else (I, M_Emoji_Modifier'Unrestricted_Access)
+           .Or_Else (I, Presentation_Keycap'Unrestricted_Access)
+           .Or_Else (I, Tag_Modifier'Unrestricted_Access);
       end Emoji_Modification;
 
       -----------------
       -- ZWJ_Element --
       -----------------
 
-      function ZWJ_Element (Offset : Natural) return Match is
+      function ZWJ_Element (I : Natural) return Match is
+
+         -----------------------------
+         -- Emoji_Plus_Modification --
+         -----------------------------
+
+         function Emoji_Plus_Modification (I : Natural) return Match is
+         begin
+            return
+              Emoji (I)
+              .Maybe_Then (I, Emoji_Modification'Unrestricted_Access,
+                           Honor_Selector);
+         end Emoji_Plus_Modification;
+
       begin
          return No_Match
-           .Or_Else (Flag_Sequence (Offset))
-           .Or_Else (Emoji (Offset)
-                     .And_Then (Offset + 1, Emoji_Modification'Access));
+           .Or_Else (I, Flag_Sequence'Unrestricted_Access)
+           .Or_Else (I, Emoji_Plus_Modification'Unrestricted_Access);
       end ZWJ_Element;
 
       --------------
       -- ZWJ_List --
       --------------
 
-      function ZWJ_List (Offset : Natural) return Match is
+      function ZWJ_List (I : Natural) return Match is
          --  (\x{200D} zwj_element)* in possible_emoji
       begin
-         if I + Offset > Text'Last
-           or else Text (I + Offset) /= Zero_Width_Joiner
+         if I > Text'Last
+           or else Text (I) /= Zero_Width_Joiner
          then
             return No_Match;
          end if;
 
          return
-           Matched (0, Text (I + Offset)) -- ZWJ
-           .Append (ZWJ_Element (Offset + 1));
+           Matched (0, Text (I)) -- ZWJ
+             .Maybe_Then (I, ZWJ_Element'Unrestricted_Access,
+                          Honor_Selector)
+             .Maybe_Then (I, ZWJ_List'Unrestricted_Access,
+                          Honor_Selector);
       end ZWJ_List;
 
       --------------------
       -- Possible_Emoji --
       --------------------
 
-      function Possible_Emoji return Match is
-         Next : constant Match := ZWJ_Element (0);
+      function Possible_Emoji (I : Natural) return Match is
+         Next : constant Match := ZWJ_Element (I);
       begin
          if Next = No_Match then
             return No_Match;
          end if;
 
-         return Next.Append (ZWJ_List (Next.Length));
+         return Next.Append (ZWJ_List (I + Next.Length), Honor_Selector);
       end Possible_Emoji;
 
       ---------------
       -- Bad_Emoji --
       ---------------
 
-      function Bad_Emoji return Match is
+      function Bad_Emoji (I : Natural) return Match is
          --  This happens when Possible_Emoji didn't match and Not_An_Emoji
          --  found and emoji. We simply take the width at face value.
       begin
@@ -262,16 +292,18 @@ package body Umwi is
       end Bad_Emoji;
 
       Length : Natural := 0;
+      I      : Integer := Text'First;
 
    begin
       while I <= Text'Last loop
          declare
             Next : constant Match :=
                      No_Match
-                       .Or_Else (Emoji_To_Text)
-                       .Or_Else (Possible_Emoji) -- This will be a presentation
-                       .Or_Else (Not_An_Emoji)
-                       .Or_Else (Bad_Emoji);
+                       .Or_Else (I, Emoji_To_Text'Unrestricted_Access)
+                       .Or_Else (I, Possible_Emoji'Unrestricted_Access)
+                        --  This will be a presentation
+                       .Or_Else (I, Not_An_Emoji'Unrestricted_Access)
+                       .Or_Else (I, Bad_Emoji'Unrestricted_Access);
          begin
             if Next.Length = 0 then
                return Length;
