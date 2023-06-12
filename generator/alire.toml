@@ -1,6 +1,6 @@
 name = "generator"
 description = "Generate the proper bodies based on Unicode spec"
-version = "0.1.0-dev"
+version = "1.0"
 
 authors = ["Alejandro R. Mosteo"]
 maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
