@@ -248,6 +248,11 @@ package body Umwi is
          end loop;
 
          if Len > 0 then
+            if Conf.Reject_Illegal and then Prev.Next = Terminal_Tag then
+               raise Encoding_Error with
+                 "Tag sequence contains only the Terminal_Tag at pos:"
+                 & Prev.I'Image;
+            end if;
             return Prev.Matching (0, Len);
          else
             return No_Match;
@@ -337,6 +342,11 @@ package body Umwi is
          --  This happens when Possible_Emoji didn't match and Not_An_Emoji
          --  found and emoji. We simply take the width at face value.
       begin
+         if Conf.Reject_Illegal then
+            raise Encoding_Error with
+              "Found an invalid emoji sequence at pos:" & Prev.I'Image;
+         end if;
+
          if Prev.Has_Input then
             if Prev.Next in Umwi.Zero_Width_Emoji_Component then
                return Prev.Matching (Width => 0, Length => 1);
