@@ -1,13 +1,19 @@
 with Umwi;
 
+with Ada.Exceptions;
+with Ada.Characters.Conversions;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 use  Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 
 procedure Demo is
 
+   -----------
+   -- Print --
+   -----------
+
    procedure Print (Text : Umwi.WWString; Descr : Umwi.WWString := "") is
-      Length : constant Natural := Umwi.Length (Text);
+      Length : constant Natural := Umwi.Width (Text);
    begin
       if Length /= 4 then
          raise Program_Error
@@ -20,10 +26,33 @@ procedure Demo is
                   else ""));
    end Print;
 
+   ---------
+   -- Bad --
+   ---------
+
+   procedure Bad (Text : Umwi.WWString; Descr : Umwi.WWString) is
+      use Ada.Characters.Conversions;
+      use Ada.Exceptions;
+   begin
+      declare
+         Length : Natural;
+      begin
+         Length := Umwi.Width (Text);
+         raise Program_Error
+           with Encode (Text) & "Should have raised but gave length:"
+                              & Length'Image;
+      exception
+         when E : Umwi.Encoding_Error =>
+            Put_Line
+              (Text & " # " & Descr & ": raised with "
+               & To_Wide_Wide_String (Exception_Message (E)));
+      end;
+   end Bad;
+
    function C (Pos : Positive) return Umwi.WWChar is (Umwi.WWChar'Val (Pos));
 
 begin
-   Umwi.Honor_Emoji_Selectors := True;
+   Umwi.Default.Honor_Emoji_Selectors := True;
 
    New_Line;
    Put_Line ("All sequences should be 4 slots in length in a monospace font ");
@@ -34,7 +63,7 @@ begin
    Print ("abcd", "regular ASCII");
    Print ("a·c·", "latin1 middle dot");
    Print ("xxxa" & C (16#0308#), "combining diacritic");
-   Print (C (16#0308#) & "1234", "combining diacritic as first character");
+   Print (C (16#0308#) & "1234", "combining diacritic as 1st char (illegal)");
    Print ("😀😀", "Emoji with Default wide Presentation");
    Print ("---" & C (16#264D#) & Umwi.Text_Selector,
           "Emoji with text selector (valid)");
@@ -54,7 +83,7 @@ begin
    Print ("バカ", "japanese katakana");
    Print ("馬鹿", "kanji");
 
-   Umwi.Honor_Emoji_Selectors := False;
+   Umwi.Default.Honor_Emoji_Selectors := False;
    New_Line;
    Put_Line ("From now on, emoji selectors are not honored for the count.");
    Put_Line ("Counts still should always be 4.");
@@ -65,4 +94,14 @@ begin
           "narrow emoji with wide presentation selector");
    Print ("--" & C (16#264D#) & Umwi.Text_Selector,
           "wide emoji with text selector (valid)");
+
+   Umwi.Default.Reject_Illegal := True;
+   New_Line;
+   Put_Line ("The following sequences should raise when Reject_Illegal:");
+   New_Line;
+
+   Bad (C (16#0308#) & "1234", "combining diacritic as 1st char (illegal)");
+   Bad ("---" & C (16#39#) & C (16#20E3#),
+        "base+keycap (missing presentation)");
+
 end Demo;

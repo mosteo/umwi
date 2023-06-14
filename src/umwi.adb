@@ -9,28 +9,26 @@ package body Umwi is
    -- Emoji_Properties --
    ----------------------
 
-   function Emoji_Properties (Symbol : WWChar) return Emoji_Property_Array
+   function Emoji_Properties (Code_Point : WWChar) return Emoji_Property_Array
                               renames Properties.Emoji_Properties;
 
    -----------
    -- Width --
    -----------
 
-   function Width (Symbol : WWChar) return East_Asian_Width
+   function Width (Code_Point : WWChar) return East_Asian_Width
                    renames Generated.Width;
 
    -----------
    -- Width --
    -----------
 
-   function Width (Symbol  : WWChar;
-                   Context : Contexts := (if Narrow_Context
-                                          then Narrow
-                                          else Wide))
+   function Width (Code_Point : WWChar;
+                   Conf       : Configuration := Default)
                    return Widths
-   is (case East_Asian_Width'(Width (Symbol)) is
+   is (case East_Asian_Width'(Width (Code_Point)) is
           when A      =>
-            (case Context is
+            (case Conf.Context is
                 when Narrow => 1,
                 when Wide   => 2),
           when F | W  => 2,
@@ -105,17 +103,13 @@ package body Umwi is
       return No_Match;
    end First_Of;
 
-   ------------
-   -- Length --
-   ------------
+   -----------
+   -- Width --
+   -----------
 
-   function Length (Text           : WWString;
-                    Context        : Contexts := (if Narrow_Context
-                                                  then Narrow
-                                                  else Wide);
-                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
-                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
-                    return Natural
+   function Width (Text : WWString;
+                   Conf : Configuration := Default)
+                   return Natural
    is
 
       -------------------
@@ -130,9 +124,9 @@ package body Umwi is
            and then Text (Prev.I + 1) = Text_Selector
          then
             return Prev.Matching
-              (Width  => (if Honor_Selector
+              (Width  => (if Conf.Honor_Emoji_Selectors
                           then 1
-                          else Width (Text (Prev.I), Context)),
+                          else Width (Text (Prev.I), Conf)),
                Length => 2);
          else
             return No_Match;
@@ -146,7 +140,9 @@ package body Umwi is
       function Not_An_Emoji (Prev : Match) return Match is
          J : Natural := Prev.I;
       begin
-         if Prev.Next in Generated.Emoji then
+         if Prev.Next in Properties.Emoji or else
+           Prev.Next in Regional_Indicator_Emoji_Component
+         then
             return No_Match;
          end if;
 
@@ -158,8 +154,13 @@ package body Umwi is
 
          return Prev.Matching
            (Width => (if Prev.Next in Properties.Combining
-                      then 0
-                      else Width (Prev.Next, Context)),
+                      then
+                        (if Conf.Reject_Illegal
+                         then raise Encoding_Error with
+                           "Combining char without preceding base char at pos:"
+                         & Prev.I'Image
+                         else 0)
+                      else Width (Prev.Next, Conf)),
             Length => J - Prev.I + 1);
       end Not_An_Emoji;
 
@@ -168,7 +169,7 @@ package body Umwi is
       -------------------
 
       function Flag_Sequence (Prev : Match) return Match is
-         subtype RI is Umwi.Regional_Indicator_Emoji_Component;
+         subtype RI is Regional_Indicator_Emoji_Component;
       begin
          if Prev.I < Text'Last
            and then Text (Prev.I)     in RI
@@ -187,7 +188,7 @@ package body Umwi is
       function M_Emoji (Prev : Match) return Match is
       begin
          if Prev.Has_Input and then Prev.Next in Generated.Emoji then
-            return Prev.Matching (Width (Prev.Next, Context), 1);
+            return Prev.Matching (Width (Prev.Next, Conf), 1);
          else
             return No_Match;
          end if;
@@ -213,7 +214,7 @@ package body Umwi is
 
       function M_Emoji_Modifier (Prev : Match) return Match is
       begin
-         if not Honor_Modifier then
+         if not Conf.Honor_Emoji_Modifiers then
             return No_Match;
          end if;
 
@@ -254,6 +255,11 @@ package body Umwi is
          end loop;
 
          if Len > 0 then
+            if Conf.Reject_Illegal and then Prev.Next = Terminal_Tag then
+               raise Encoding_Error with
+                 "Tag sequence contains only the Terminal_Tag at pos:"
+                 & Prev.I'Image;
+            end if;
             return Prev.Matching (0, Len);
          else
             return No_Match;
@@ -343,11 +349,16 @@ package body Umwi is
          --  This happens when Possible_Emoji didn't match and Not_An_Emoji
          --  found and emoji. We simply take the width at face value.
       begin
+         if Conf.Reject_Illegal then
+            raise Encoding_Error with
+              "Found an invalid emoji sequence at pos:" & Prev.I'Image;
+         end if;
+
          if Prev.Has_Input then
             if Prev.Next in Umwi.Zero_Width_Emoji_Component then
                return Prev.Matching (Width => 0, Length => 1);
             else
-               return Prev.Matching (Width (Prev.Next, Context), 1);
+               return Prev.Matching (Width (Prev.Next, Conf), 1);
             end if;
          else
             return No_Match;
@@ -361,7 +372,9 @@ package body Umwi is
       while I <= Text'Last loop
          declare
             Next : constant Match :=
-                     Empty (Text, I, Honor_Modifier, Honor_Selector)
+                     Empty (Text, I,
+                            Conf.Honor_Emoji_Modifiers,
+                            Conf.Honor_Emoji_Selectors)
                      .First_Of
                        ([Emoji_To_Text 'Unrestricted_Access,
                          Possible_Emoji'Unrestricted_Access,
@@ -380,26 +393,20 @@ package body Umwi is
       end loop;
 
       return Length;
-   end Length;
+   end Width;
 
-   ------------
-   -- Length --
-   ------------
+   -----------
+   -- Width --
+   -----------
 
-   function Length (Text           : UTF8_String;
-                    Context        : Contexts := (if Narrow_Context
-                                                  then Narrow
-                                                  else Wide);
-                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
-                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
-                    return Natural
+   function Width (Text : UTF8_String;
+                   Conf : Configuration := Default)
+                   return Natural
    is
       use Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
    begin
-      return Length (Text           => Decode (String (Text)),
-                     Context        => Context,
-                     Honor_Selector => Honor_Selector,
-                     Honor_Modifier => Honor_Modifier);
-   end Length;
+      return Width (Text => Decode (String (Text)),
+                    Conf => Conf);
+   end Width;
 
 end Umwi;
