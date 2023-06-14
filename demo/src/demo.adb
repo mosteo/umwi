@@ -1,10 +1,16 @@
 with Umwi;
 
+with Ada.Exceptions;
+with Ada.Characters.Conversions;
 with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 use  Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 
 procedure Demo is
+
+   -----------
+   -- Print --
+   -----------
 
    procedure Print (Text : Umwi.WWString; Descr : Umwi.WWString := "") is
       Length : constant Natural := Umwi.Width (Text);
@@ -19,6 +25,29 @@ procedure Demo is
                   then " # " & Descr
                   else ""));
    end Print;
+
+   ---------
+   -- Bad --
+   ---------
+
+   procedure Bad (Text : Umwi.WWString; Descr : Umwi.WWString) is
+      use Ada.Characters.Conversions;
+      use Ada.Exceptions;
+   begin
+      declare
+         Length : Natural;
+      begin
+         Length := Umwi.Width (Text);
+         raise Program_Error
+           with Encode (Text) & "Should have raised but gave length:"
+                              & Length'Image;
+      exception
+         when E : Umwi.Encoding_Error =>
+            Put_Line
+              (Text & " # " & Descr & ": raised with "
+               & To_Wide_Wide_String (Exception_Message (E)));
+      end;
+   end Bad;
 
    function C (Pos : Positive) return Umwi.WWChar is (Umwi.WWChar'Val (Pos));
 
@@ -65,4 +94,14 @@ begin
           "narrow emoji with wide presentation selector");
    Print ("--" & C (16#264D#) & Umwi.Text_Selector,
           "wide emoji with text selector (valid)");
+
+   Umwi.Default.Reject_Illegal := True;
+   New_Line;
+   Put_Line ("The following sequences should raise when Reject_Illegal:");
+   New_Line;
+
+   Bad (C (16#0308#) & "1234", "combining diacritic as 1st char (illegal)");
+   Bad ("---" & C (16#39#) & C (16#20E3#),
+        "base+keycap (missing presentation)");
+
 end Demo;

@@ -140,7 +140,9 @@ package body Umwi is
       function Not_An_Emoji (Prev : Match) return Match is
          J : Natural := Prev.I;
       begin
-         if Prev.Next in Generated.Emoji then
+         if Prev.Next in Properties.Emoji or else
+           Prev.Next in Regional_Indicator_Emoji_Component
+         then
             return No_Match;
          end if;
 
@@ -152,7 +154,12 @@ package body Umwi is
 
          return Prev.Matching
            (Width => (if Prev.Next in Properties.Combining
-                      then 0
+                      then
+                        (if Conf.Reject_Illegal
+                         then raise Encoding_Error with
+                           "Combining char without preceding base char at pos:"
+                         & Prev.I'Image
+                         else 0)
                       else Width (Prev.Next, Conf)),
             Length => J - Prev.I + 1);
       end Not_An_Emoji;
@@ -162,7 +169,7 @@ package body Umwi is
       -------------------
 
       function Flag_Sequence (Prev : Match) return Match is
-         subtype RI is Umwi.Regional_Indicator_Emoji_Component;
+         subtype RI is Regional_Indicator_Emoji_Component;
       begin
          if Prev.I < Text'Last
            and then Text (Prev.I)     in RI
