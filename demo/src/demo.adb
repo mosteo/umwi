@@ -7,7 +7,7 @@ with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 procedure Demo is
 
    procedure Print (Text : Umwi.WWString; Descr : Umwi.WWString := "") is
-      Length : constant Natural := Umwi.Length (Text);
+      Length : constant Natural := Umwi.Width (Text);
    begin
       if Length /= 4 then
          raise Program_Error
@@ -23,7 +23,7 @@ procedure Demo is
    function C (Pos : Positive) return Umwi.WWChar is (Umwi.WWChar'Val (Pos));
 
 begin
-   Umwi.Honor_Emoji_Selectors := True;
+   Umwi.Default.Honor_Emoji_Selectors := True;
 
    New_Line;
    Put_Line ("All sequences should be 4 slots in length in a monospace font ");
@@ -34,7 +34,7 @@ begin
    Print ("abcd", "regular ASCII");
    Print ("a·c·", "latin1 middle dot");
    Print ("xxxa" & C (16#0308#), "combining diacritic");
-   Print (C (16#0308#) & "1234", "combining diacritic as first character");
+   Print (C (16#0308#) & "1234", "combining diacritic as 1st char (illegal)");
    Print ("😀😀", "Emoji with Default wide Presentation");
    Print ("---" & C (16#264D#) & Umwi.Text_Selector,
           "Emoji with text selector (valid)");
@@ -54,7 +54,7 @@ begin
    Print ("バカ", "japanese katakana");
    Print ("馬鹿", "kanji");
 
-   Umwi.Honor_Emoji_Selectors := False;
+   Umwi.Default.Honor_Emoji_Selectors := False;
    New_Line;
    Put_Line ("From now on, emoji selectors are not honored for the count.");
    Put_Line ("Counts still should always be 4.");

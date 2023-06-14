@@ -4,25 +4,51 @@ package Umwi with Preelaborate is
    --  In those cases it will likely report a length different from what
    --  is actually printed to the console, as interpretation will be open.
 
-   Debug : Boolean := False;
-   --  Set to true to see the trace of the grammar parser
+   type Contexts is (Narrow, Wide);
+   --  In Narrow contexts, an ambiguous symbol will use 1 slot. This is the
+   --  case of a Western locale. In a CJK locale, an ambiguous symbol would
+   --  typically use 2 slots, as the rest of CJK symbols.
 
-   Narrow_Context  : Boolean := True;
-   --  See Contexts type below. TL;DR, True for Latin, False for CJK locales.
+   type Configuration is record
 
-   Honor_Emoji_Selectors : Boolean := False;
-   --  To match wcwidth behavior on Linux, used by most programs and terminals,
-   --  set this to false. To be Unicode strict, set to True. This allows to
-   --  force a 1-wide b/w emoji into a 2-wide color emoji and vice versa.
+      Context : Contexts := Narrow;
 
-   Honor_Emoji_Modifiers : Boolean := True;
-   --  These change the tone or combine with a previous emoji base. Not all
-   --  fonts/terminals do these combinations, and instead show the skin tone
-   --  as a square.
+      Honor_Emoji_Selectors : Boolean := False;
+      --  To match wcwidth behavior on Linux, used by most programs and
+      --  terminals, set this to false. To be Unicode strict, set to True. This
+      --  allows to force a 1-wide b/w emoji into a 2-wide color emoji and vice
+      --  versa.
 
-   --  Composing Unicode code points are always considered to be of size 0
-   --  (they combine with a previous base character to form a graphene
-   --  cluster, e.j. 'a' + '´' = 'á'
+      Honor_Emoji_Modifiers : Boolean := True;
+      --  These change the tone or combine with a previous emoji base. Not all
+      --  fonts/terminals do these combinations, and instead show the skin tone
+      --  as a square, or don't group the emojis as intended.
+
+      Reject_Illegal : Boolean := False;
+      --  When true, instead of doing a best-effort attempt at guessing how
+      --  some bad combos will display (e.g., a keycap without preceding
+      --  presentation selector, or inexistent country codes, or half a
+      --  country code), just raise Encoding_Error.
+
+      --  Composing Unicode code points are always considered to be of width
+      --  0 (they combine with a previous base character to form a graphene
+      --  cluster, e.j. 'a' + '´' = 'á'
+   end record;
+
+   package Defaults is
+
+      Default : Configuration := (others => <>);
+      --  Default configuration for the package overridable in individual
+      --  calls, or to be directly modified here.
+
+      Linux   : constant Configuration := (others => <>);
+
+      Strict  : constant Configuration := (Context => Narrow,
+                                           others  => True);
+
+   end Defaults;
+
+   Default : Configuration renames Defaults.Default;
 
    Encoding_Error : exception;
    --  Raised by the subprograms below that take a string when there's some
@@ -34,20 +60,16 @@ package Umwi with Preelaborate is
    subtype WWString is Wide_Wide_String;
 
    type East_Asian_Width is
-     (A,  -- Ambiguous. Can take either 1 or 2 em depending on context.
-      F,  -- Fullwidth. Occupies 2 em.
-      H,  -- Halfwidth. Occupies 1 em.
-      N,  -- Neutral. Occupies 1 em.
-      Na, -- Narrow. Occupies 1 em.
-      W   -- Wide. Occupies 2 em.
+     (A,  -- Ambiguous. Can take either 1 or 2 slots depending on context.
+      F,  -- Fullwidth. Occupies 2 slots.
+      H,  -- Halfwidth. Occupies 1 slot.
+      N,  -- Neutral. Occupies 1 slot.
+      Na, -- Narrow. Occupies 1 slot.
+      W   -- Wide. Occupies 2 slots.
      );
+   --  Unicode equates 1/2 em to 1 slot and 2 em to 2 slots.
    --  https://www.unicode.org/reports/tr11/
    --  https://www.unicode.org/reports/tr44/
-
-   type Contexts is (Narrow, Wide);
-   --  In Narrow contexts, an ambiguous symbol will use 1 em. This is the
-   --  case of a Western locale. In a CJK locale, an ambiguous symbol would
-   --  typically use 2 em.
 
    subtype Widths is Positive range 1 .. 2;
 
@@ -61,17 +83,17 @@ package Umwi with Preelaborate is
    --  https://www.unicode.org/reports/tr51/
    --  https://unicode.org/Public/15.0.0/ucd/emoji/emoji-data.txt
 
-   --  An Emoji Presentation Sequence should use 2 em no mater what their
+   --  An Emoji Presentation Sequence should use 2 slots no mater what their
    --  East_Asian_Width is, see in https://www.unicode.org/reports/tr11/
    --  This is an Emoji_Presentation symbol plus either 16#FE0E# (text mode,
-   --  black&white, 1em) or 16#FE0E# (presentation mode, colorful, 2em).
+   --  black&white, 0.5em) or 16#FE0E# (presentation mode, colorful, 1em).
    --  If omitted, a symbol with the Emoji_Presentation property should use
    --  the latter. Not all emojis can be forced into either mode, see the
    --  emoji-variation-sequences.txt Unicode file.
 
    --  NOTE: at present, Ubuntu terminals do not honor the Text/Presentation
    --  marker for actual width, only for the text/presentation mode. It will
-   --  use the proper symbol, but it will always take the width mandated by
+   --  use the proper symbol, but it will always take the width announced by
    --  its East_Asian_Width or Emoji_Presentation property.
 
    --  I'm not aware of any non-wide with Emoji_Presentation symbol.
@@ -100,7 +122,7 @@ package Umwi with Preelaborate is
      | WWChar'Val (16#20D0#) .. WWChar'Val (16#20FF#) -- diacritic marks symbol
      | WWChar'Val (16#FE20#) .. WWChar'Val (16#FE2F#) -- half marks
    ;
-   --  These are not all the combining characters; see Umwi.Combining
+   --  These aren't all the combining characters; see Umwi.Properties.Combining
 
    subtype Regional_Indicator_Emoji_Component is WWChar range
      WWChar'Val (16#1F1E6#) .. WWChar'Val (16#1F1FF#);
@@ -128,28 +150,23 @@ package Umwi with Preelaborate is
    -- Subprograms --
    -----------------
 
-   function Emoji_Properties (Symbol : WWChar) return Emoji_Property_Array;
+   function Emoji_Properties (Code_Point : WWChar) return Emoji_Property_Array;
    --  See also Umwi.Emoji
 
-   function Width (Symbol : WWChar) return East_Asian_Width;
+   function Width (Code_Point : WWChar) return East_Asian_Width;
    --  See also Umwi.East_Asian_Width
 
-   function Width (Symbol  : WWChar;
-                   Context : Contexts := (if Narrow_Context
-                                          then Narrow
-                                          else Wide))
+   function Width (Code_Point : WWChar;
+                   Conf       : Configuration := Default)
                    return Widths;
 
-   function Length (Text           : WWString;
-                    Context        : Contexts := (if Narrow_Context
-                                                  then Narrow
-                                                  else Wide);
-                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
-                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
-                    return Natural;
-   --  This is Length in the sense of fixed-width font slots used. Takes into
-   --  account grapheme clusters (considered as one slot). Implements the EBNF
-   --  at https://unicode.org/reports/tr51/#EBNF_and_Regex. Displaying engines
+   function Width (Text : WWString;
+                   Conf : Configuration := Default)
+                   return Natural;
+   --  This is Width in the sense of fixed-width font slots used. Takes
+   --  into account grapheme clusters (considered as one/two slots according
+   --  to the base code point East Asian Width). Implements the EBNF at
+   --  https://unicode.org/reports/tr51/#EBNF_and_Regex. Displaying engines
    --  that deviate from that EBNF will result in wrong lengths. In addition,
    --  when Honor_Selector, two-point sequences of emoji+selector are
    --  considered. If not Honor_Modifier, the EBNF will not combine skin tones
@@ -157,13 +174,9 @@ package Umwi with Preelaborate is
    --  emoji matched by the EBNF, no matter how long in actual unicode points,
    --  will occupy 2 slots.
 
-   function Length (Text           : UTF8_String;
-                    Context        : Contexts := (if Narrow_Context
-                                                  then Narrow
-                                                  else Wide);
-                    Honor_Selector : Boolean := Honor_Emoji_Selectors;
-                    Honor_Modifier : Boolean := Honor_Emoji_Modifiers)
-                    return Natural;
+   function Width (Text : UTF8_String;
+                   Conf : Configuration := Default)
+                   return Natural;
    --  Same as above
 
 private
