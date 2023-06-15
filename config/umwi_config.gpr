@@ -11,12 +11,11 @@ abstract project Umwi_Config is
    Ada_Compiler_Switches := External_As_List ("ADAFLAGS", " ");
    Ada_Compiler_Switches := Ada_Compiler_Switches &
           (
-            "-gnatW8" -- UTF-8 encoding for wide characters
-           ,"-O3" -- Optimize for performance
+            "-O3" -- Optimize for performance
            ,"-gnatn" -- Enable inlining
            ,"-ffunction-sections" -- Separate ELF section for each function
            ,"-fdata-sections" -- Separate ELF section for each variable
-           ,"-gnat2022" -- Ada 2022 Mode
+           ,"-gnatW8" -- UTF-8 encoding for wide characters
           );
 
    type Build_Profile_Kind is ("release", "validation", "development");

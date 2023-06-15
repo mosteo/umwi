@@ -288,9 +288,9 @@ package body Umwi is
       function Emoji_Modification (Prev : Match) return Match is
       begin
          return Prev.First_Of
-           ([M_Emoji_Modifier'Unrestricted_Access,
+           ((M_Emoji_Modifier'Unrestricted_Access,
              Presentation_Keycap'Unrestricted_Access,
-             Tag_Modifier'Unrestricted_Access]);
+             Tag_Modifier'Unrestricted_Access));
       end Emoji_Modification;
 
       -----------------
@@ -313,8 +313,8 @@ package body Umwi is
 
       begin
          return Prev.First_Of
-           ([Flag_Sequence'Unrestricted_Access,
-             Emoji_Plus_Modification'Unrestricted_Access]);
+           ((Flag_Sequence'Unrestricted_Access,
+             Emoji_Plus_Modification'Unrestricted_Access));
       end ZWJ_Element;
 
       --------------
@@ -376,10 +376,10 @@ package body Umwi is
                             Conf.Honor_Emoji_Modifiers,
                             Conf.Honor_Emoji_Selectors)
                      .First_Of
-                       ([Emoji_To_Text 'Unrestricted_Access,
+                       ((Emoji_To_Text 'Unrestricted_Access,
                          Possible_Emoji'Unrestricted_Access,
                          Not_An_Emoji  'Unrestricted_Access,
-                         Bad_Emoji     'Unrestricted_Access]);
+                         Bad_Emoji     'Unrestricted_Access));
          begin
             if Next = No_Match then
                return Length;
@@ -408,5 +408,27 @@ package body Umwi is
       return Width (Text => Decode (String (Text)),
                     Conf => Conf);
    end Width;
+
+   --------------
+   -- Matching --
+   --------------
+
+   function Matching (This   : Match;
+                      Width  : Natural;
+                      Length : Positive) return Match
+   is (Length => This.Length,
+       Text   => This.Text,
+       Pos    => This.Pos,
+       HM     => This.HM,
+       HS     => This.HS,
+       Eaten  => This.Eaten + Length,
+       Width  => (case This.Width is
+                     when 0     => Width,
+                     when 2     => 2,
+                     when 1     =>
+                       (if This.HS and then This.Next = Presentation_Selector
+                        then 2
+                        else 1),
+                     when others => raise Program_Error));
 
 end Umwi;

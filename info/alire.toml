@@ -1,0 +1,21 @@
+name = "info"
+description = "Report width info of a Unicode string"
+version = "0.1.0-dev"
+
+authors = ["Alejandro R. Mosteo"]
+maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
+maintainers-logins = ["mosteo"]
+licenses = "GPL-3.0-or-later"
+website = ""
+tags = ["unicode"]
+
+executables = ["umwi-info"]
+
+[[depends-on]]
+aaa = "*"
+ansiada = "^1.0.0"
+umwi = "*"
+
+[[pins]]
+aaa  = { path="../../aaa" }
+umwi = { path='..' }

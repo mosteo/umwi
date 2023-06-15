@@ -252,17 +252,7 @@ private
 
    function Matching (This   : Match;
                       Width  : Natural;
-                      Length : Positive) return Match
-   is (Match'(This with delta
-       Eaten => This.Eaten + Length,
-       Width  => (case This.Width is
-                     when 0     => Width,
-                     when 2     => 2,
-                     when 1     =>
-                       (if This.HS and then This.Next = Presentation_Selector
-                        then 2
-                        else 1),
-                     when others => raise Program_Error)));
+                      Length : Positive) return Match;
 
    --------------
    -- And_Then --
