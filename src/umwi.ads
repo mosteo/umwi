@@ -160,9 +160,15 @@ package Umwi with Preelaborate is
                    Conf       : Configuration := Default)
                    return Widths;
 
-   function Width (Text : WWString;
+   type Counts is record
+      Points   : Natural := 0; -- code points, same as WWString'Length
+      Clusters : Natural := 0; -- grapheme clusters, "separate" symbols
+      Width    : Natural := 0; -- width in fixed-pitch font columns, 2*ems
+   end record;
+
+   function Count (Text : WWString;
                    Conf : Configuration := Default)
-                   return Natural;
+                   return Counts;
    --  This is Width in the sense of fixed-width font slots used. Takes
    --  into account grapheme clusters (considered as one/two slots according
    --  to the base code point East Asian Width). Implements the EBNF at
@@ -174,9 +180,9 @@ package Umwi with Preelaborate is
    --  emoji matched by the EBNF, no matter how long in actual unicode points,
    --  will occupy 2 slots.
 
-   function Width (Text : UTF8_String;
+   function Count (Text : UTF8_String;
                    Conf : Configuration := Default)
-                   return Natural;
+                   return Counts;
    --  Same as above
 
 private

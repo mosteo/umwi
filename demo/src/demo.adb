@@ -13,7 +13,7 @@ procedure Demo is
    -----------
 
    procedure Print (Text : Umwi.WWString; Descr : Umwi.WWString := "") is
-      Length : constant Natural := Umwi.Width (Text);
+      Length : constant Natural := Umwi.Count (Text).Width;
    begin
       if Length /= 4 then
          raise Program_Error
@@ -37,7 +37,7 @@ procedure Demo is
       declare
          Length : Natural;
       begin
-         Length := Umwi.Width (Text);
+         Length := Umwi.Count (Text).Width;
          raise Program_Error
            with Encode (Text) & "Should have raised but gave length:"
                               & Length'Image;

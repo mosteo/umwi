@@ -26,7 +26,7 @@ procedure Umwi.Info is
    function EAW (S : WStr; I : Integer := 1) return String
    is (if I > S'Last
        then ""
-       else East_Asian_Width'(Width (S (I)))'Image
+       else East_Asian_Width'(Count (S (I)).Width)'Image
             & " " & EAW (S, I + 1));
 
    function Codes (S : WStr; I : Integer := 1) return String
@@ -38,7 +38,7 @@ begin
    Put ("Enter text: ");
    declare
       Text : constant WStr := Get_Line;
-      Line : constant WStr := (Width (Text) + 4) * "-";
+      Line : constant WStr := (Count (Text).Width + 4) * "-";
       Tab  : Table;
    begin
       Put_Line (Line);
@@ -49,7 +49,7 @@ begin
         .New_Row;
       Tab.Append ("Code point count:").Append (Text'Length'Image).Append ("-")
         .New_Row;
-      Tab.Append ("Width:").Append (Width (Text)'Image).Append ("-")
+      Tab.Append ("Width:").Append (Count (Text).Width'Image).Append ("-")
         .New_Row;
       Tab.Append ("East Asian width:").Append (EAW (Text, Text'First))
         .Append ("-").New_Row;

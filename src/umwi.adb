@@ -104,12 +104,12 @@ package body Umwi is
    end First_Of;
 
    -----------
-   -- Width --
+   -- Count --
    -----------
 
-   function Width (Text : WWString;
+   function Count (Text : WWString;
                    Conf : Configuration := Default)
-                   return Natural
+                   return Counts
    is
 
       -------------------
@@ -365,8 +365,9 @@ package body Umwi is
          end if;
       end Bad_Emoji;
 
-      Length : Natural := 0;
-      I      : Integer := Text'First;
+      Count : Counts := (Points => Text'Length,
+                         others => <>);
+      I     : Integer := Text'First;
 
    begin
       while I <= Text'Last loop
@@ -382,32 +383,34 @@ package body Umwi is
                          Bad_Emoji     'Unrestricted_Access));
          begin
             if Next = No_Match then
-               return Length;
+               return Count;
                --  Something very strange has happened or we have consumed all
                --  the string.
             else
-               I      := I      + Next.Eaten;
-               Length := Length + Next.Width;
+               I := I + Next.Eaten;
+
+               Count.Clusters := Count.Clusters + 1;
+               Count.Width    := Count.Width    + Next.Width;
             end if;
          end;
       end loop;
 
-      return Length;
-   end Width;
+      return Count;
+   end Count;
 
    -----------
-   -- Width --
+   -- Count --
    -----------
 
-   function Width (Text : UTF8_String;
+   function Count (Text : UTF8_String;
                    Conf : Configuration := Default)
-                   return Natural
+                   return Counts
    is
       use Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
    begin
-      return Width (Text => Decode (String (Text)),
+      return Count (Text => Decode (String (Text)),
                     Conf => Conf);
-   end Width;
+   end Count;
 
    --------------
    -- Matching --
