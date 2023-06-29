@@ -1,6 +1,6 @@
 name = "umwi"
 description = "Unicode Monospace Width Information"
-version = "1.0-1"
+version = "0.1.0"
 
 authors = ["Alejandro R. Mosteo"]
 maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
