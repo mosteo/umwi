@@ -1,3 +1,5 @@
+ [![Alire](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/umwi.json)](https://alire.ada.dev/crates/umwi.html)
+
 ## Unicode Monospaced Width Information (UMWI)
 
 This is a library to get the width in monospace font "characters" of an Unicode code
