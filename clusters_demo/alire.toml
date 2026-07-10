@@ -1,0 +1,21 @@
+name = "clusters_demo"
+description = "Self-checking driver for the grapheme-cluster iterator API"
+version = "1.0"
+
+authors = ["Alejandro R. Mosteo"]
+maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>"]
+maintainers-logins = ["mosteo"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = ["unicode", "grapheme", "cluster", "iterator"]
+
+executables = ["clusters_demo"]
+
+[[depends-on]]
+umwi = "*"
+
+[[pins]]
+umwi = { path='..' }
+
+[build-switches]
+"*".Ada_Version = "Ada2022"

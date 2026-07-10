@@ -44,7 +44,69 @@ which helps in determining if a symbol should take one or two slots when rendere
 If you're displaying tables to the terminal that may contain emojis you will
 likely run into problems if you don't take into account the Asian width of your strings.
 
+### Grapheme-cluster iteration
+
+In addition to the aggregate `Count` API, `umwi` exposes a public,
+O(N) grapheme-cluster iterator usable with Ada's `for ... of` loop.
+For each cluster you get its boundary, its display width, and either
+its code-point or byte extent:
+
+```ada
+type Grapheme_Cluster is record
+   First, Last : Positive;  -- code-point indices into the source WWString
+   Points      : Positive;  -- number of code points in this cluster
+   Width       : Natural;   -- display columns (0, 1 or 2)
+end record;
+
+type UTF8_Grapheme_Cluster is record
+   First_Byte, Last_Byte : Positive;  -- byte indices into the UTF8_String
+   Points                : Positive;
+   Width                 : Natural;
+end record;
+
+for C of Umwi.Clusters (Some_WWString)    loop ...  --  Grapheme_Cluster
+for C of Umwi.Clusters (Some_UTF8_String) loop ...  --  UTF8_Grapheme_Cluster
+```
+
+A single-step primitive is also exported:
+
+```ada
+function Next_Cluster (Text : WWString;    From : Positive;
+                       Conf : Configuration := Default) return Grapheme_Cluster;
+function Next_Cluster (Text : UTF8_String; From : Positive;
+                       Conf : Configuration := Default)
+                       return UTF8_Grapheme_Cluster;
+```
+
+Both `Count` and the iterator share the same internal cluster-segmentation
+primitive, so sums over the iterator always equal `Count`'s results:
+
+```
+sum (C.Width)  of Clusters (T) = Count (T).Width
+sum (C.Points) of Clusters (T) = Count (T).Points
+       count   of Clusters (T) = Count (T).Clusters
+```
+
+For the UTF-8 view, `Text (C.First_Byte .. C.Last_Byte)` slices the original
+input safely at cluster boundaries, and concatenating these slices over all
+clusters reproduces the input byte for byte.
+
+### Malformed UTF-8 contract
+
+The new grapheme-cluster iterator on `UTF8_String` is best-effort by default:
+when `Conf.Reject_Illegal = False`, every byte that does not decode to a valid
+UTF-8 code point is treated as a single-byte cluster of width 1, so iteration
+always makes progress and never raises on malformed input. When
+`Conf.Reject_Illegal = True`, `Encoding_Error` is raised on the first invalid
+byte instead.
+
+For backward compatibility the legacy `Count (Text : UTF8_String)` still
+raises `Encoding_Error` on any malformed UTF-8 regardless of
+`Conf.Reject_Illegal` — switch to the iterator when you need best-effort
+behaviour on possibly-broken input.
+
 ### References
 
 - https://www.unicode.org/reports/tr11/ (East Asian Width)
 - https://www.unicode.org/reports/tr51/ (Unicode Emoji)
+- https://www.unicode.org/reports/tr29/ (Grapheme Cluster Boundaries)

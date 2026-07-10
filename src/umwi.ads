@@ -183,18 +183,133 @@ package Umwi with Preelaborate is
    function Count (Text : UTF8_String;
                    Conf : Configuration := Default)
                    return Counts;
-   --  Same as above
+   --  This is Width in the sense of fixed-width font slots used. Takes
+   --  into account grapheme clusters (considered as one/two slots according
+   --  to the base code point East Asian Width). Implements the EBNF at
+   --  https://unicode.org/reports/tr51/#EBNF_and_Regex. Displaying engines
+   --  that deviate from that EBNF will result in wrong lengths. In addition,
+   --  when Honor_Selector, two-point sequences of emoji+selector are
+   --  considered. If not Honor_Modifier, the EBNF will not combine skin tones
+   --  (Emoji_Modifier code points) and break the sequence at that point. An
+   --  emoji matched by the EBNF, no matter how long in actual unicode points,
+   --  will occupy 2 slots.
+   --
+   --  NOTE: this overload raises Encoding_Error on any
+   --  malformed UTF-8 regardless of Conf.Reject_Illegal (legacy behaviour,
+   --  preserved for backward compatibility). The grapheme cluster iterator
+   --  below (Clusters / Next_Cluster on UTF8_String) is best-effort by
+   --  default and only raises when Conf.Reject_Illegal is True.
+
+   --------------------------------
+   -- Grapheme cluster iteration --
+   --------------------------------
+
+   --  A grapheme cluster is one user-perceived "character" (a base code point
+   --  plus any combining marks, a ZWJ sequence emoji, a flag, a keycap, etc.).
+   --  See https://unicode.org/reports/tr29/.
+
+   type Grapheme_Cluster is record
+      First  : Positive; -- first code-point index in the source WWString
+      Last   : Positive; -- last  code-point index (inclusive)
+      Points : Positive; -- number of code points covered (Last - First + 1)
+      Width  : Natural;  -- display columns (typically 0, 1 or 2)
+   end record;
+
+   type UTF8_Grapheme_Cluster is record
+      First_Byte : Positive; -- first byte index in the source UTF8_String
+      Last_Byte  : Positive; -- last  byte index (inclusive)
+      Points     : Positive; -- number of code points covered
+      Width      : Natural;  -- display columns
+   end record;
+
+   function Next_Cluster (Text : WWString;
+                          From : Positive;
+                          Conf : Configuration := Default)
+                          return Grapheme_Cluster
+     with Pre => From in Text'Range;
+
+   function Next_Cluster (Text : UTF8_String;
+                          From : Positive;
+                          Conf : Configuration := Default)
+                          return UTF8_Grapheme_Cluster
+     with Pre => From in Text'Range;
+   --  Parse a single grapheme cluster starting at the given position.
+   --
+   --  WWString overload: From is a code-point index into Text. The returned
+   --  cluster uses the original index basis of Text.
+   --
+   --  UTF8_String overload: From is a byte index. When Conf.Reject_Illegal is
+   --  False (default), malformed UTF-8 is handled best-effort: every byte
+   --  that does not decode to a valid code point is treated as a single-byte
+   --  cluster of width 1, so iteration always makes progress. When
+   --  Conf.Reject_Illegal is True, Encoding_Error is raised on any malformed
+   --  input.
+   --
+   --  Note: Count (UTF8_String) above raises Encoding_Error on malformed
+   --  UTF-8 even with Reject_Illegal => False — that is legacy behaviour,
+   --  intentionally preserved, not a bug.
+
+   type Cluster_Cursor      is private;
+   type UTF8_Cluster_Cursor is private;
+
+   type Cluster_View (<>) is private
+     with Iterable => (First       => First,
+                       Next        => Next,
+                       Has_Element => Has_Element,
+                       Element     => Element);
+
+   type UTF8_Cluster_View (<>) is private
+     with Iterable => (First       => First,
+                       Next        => Next,
+                       Has_Element => Has_Element,
+                       Element     => Element);
+
+   function Clusters (Text : WWString;
+                      Conf : Configuration := Default)
+                      return Cluster_View;
+
+   function Clusters (Text : UTF8_String;
+                      Conf : Configuration := Default)
+                      return UTF8_Cluster_View;
+   --  Iterable views suitable for "for ... of" loops:
+   --
+   --     for C of Clusters (Some_WWString)    loop ...
+   --        --  yields Grapheme_Cluster
+   --     for C of Clusters (Some_UTF8_String) loop ...
+   --        --  yields UTF8_Grapheme_Cluster
+   --
+   --  Same malformed-UTF-8 contract as Next_Cluster: best-effort by default,
+   --  strict when Conf.Reject_Illegal is True.
+   --
+   --  The text passed to Clusters must outlive the iteration (the view holds
+   --  the decoded representation by value; the WWString overload holds a
+   --  reference to the original text).
+
+   function First (V : Cluster_View) return Cluster_Cursor;
+   function Has_Element (V : Cluster_View; C : Cluster_Cursor)
+                         return Boolean;
+   function Next (V : Cluster_View; C : Cluster_Cursor) return Cluster_Cursor;
+   function Element (V : Cluster_View; C : Cluster_Cursor)
+                     return Grapheme_Cluster;
+
+   function First (V : UTF8_Cluster_View) return UTF8_Cluster_Cursor;
+   function Has_Element (V : UTF8_Cluster_View; C : UTF8_Cluster_Cursor)
+                         return Boolean;
+   function Next (V : UTF8_Cluster_View; C : UTF8_Cluster_Cursor)
+                  return UTF8_Cluster_Cursor;
+   function Element (V : UTF8_Cluster_View; C : UTF8_Cluster_Cursor)
+                     return UTF8_Grapheme_Cluster;
 
 private
 
    --  Helper type to implement the recursive parser
 
    type Match (Length : Natural) is tagged record
-      Text   : WWString (1 .. Length);
-      Pos    : Positive;
-      Eaten  : Natural;
-      Width  : Natural; -- Actual visible width
-      HM, HS : Boolean; -- Honor_Modifier, Honor_Selector
+      Text  : WWString (1 .. Length);
+      Pos   : Positive;
+      Eaten : Natural;
+      Width : Natural; -- Actual visible width
+      Conf  : Configuration;
    end record;
 
    type Matcher is access function (Prev : Match) return Match;
@@ -224,19 +339,19 @@ private
    -- Empty --
    -----------
 
-   function Empty (Input          : WWString;
-                   Start          : Positive;
-                   Honor_Modifier,
-                   Honor_Selector : Boolean)
+   function Empty (Input : WWString;
+                   Start : Positive;
+                   Conf  : Configuration)
                    return Match
    is (Length => Input'Length,
-       Pos    => Start,
+       Pos    => Start - Input'First + 1,
        Eaten  => 0,
        Text   => Input,
        Width  => 0,
-       HM     => Honor_Modifier,
-       HS     => Honor_Selector);
-   --  To be used at the very beginning of matching
+       Conf   => Conf);
+   --  To be used at the very beginning of matching. Pos is normalised so
+   --  that matchers can always index Text from 1; the caller still drives
+   --  outer iteration in the original index basis using Eaten.
 
    --------------
    -- No_Match --
@@ -248,8 +363,7 @@ private
        Eaten => 0,
        Text => "",
        Width => 0,
-       HM => False,
-       HS => False);
+       Conf  => (others => <>));
    --  To be used after matching has started
 
    --------------
@@ -284,5 +398,43 @@ private
 
    function First_Of (This  : Match;
                       Those : Alternatives) return Match;
+
+   ----------------------
+   -- Cursor and views --
+   ----------------------
+
+   type Cluster_Cursor is record
+      Has_Cur : Boolean          := False;
+      Cur     : Grapheme_Cluster := (1, 1, 1, 0);
+   end record;
+
+   type UTF8_Cluster_Cursor is record
+      Has_Cur    : Boolean               := False;
+      Cur        : UTF8_Grapheme_Cluster := (1, 1, 1, 0);
+      Last_Point : Natural               := 0;
+      --  Code-point index in the decoded buffer of the last point covered
+      --  by Cur; used to advance to the next cluster in O(1).
+   end record;
+
+   type WWString_Access is access constant WWString;
+
+   type Cluster_View is record
+      Text : WWString_Access;
+      Conf : Configuration;
+   end record;
+
+   type Byte_Offsets is array (Positive range <>) of Positive;
+
+   type UTF8_Cluster_View (Points : Natural) is record
+      Decoded : WWString     (1 .. Points);
+      Starts  : Byte_Offsets (1 .. Points);
+      --  Starts (i) is the byte index in the original UTF8_String where the
+      --  i-th decoded code point begins.
+      Ends    : Byte_Offsets (1 .. Points);
+      --  Ends (i) is the byte index in the original UTF8_String of the last
+      --  byte of the i-th decoded code point. The byte span of code points
+      --  i..j is Starts (i) .. Ends (j).
+      Conf    : Configuration;
+   end record;
 
 end Umwi;
