@@ -11,7 +11,7 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#5BF#)
     | WWChar'Val (16#5C1#) .. WWChar'Val (16#5C2#)
     | WWChar'Val (16#5C4#) .. WWChar'Val (16#5C5#)
-    | WWChar'Val (16#5C7#)
+    | WWChar'Val (16#5C7#) .. WWChar'Val (16#5C9#)
     | WWChar'Val (16#610#) .. WWChar'Val (16#61A#)
     | WWChar'Val (16#64B#) .. WWChar'Val (16#65F#)
     | WWChar'Val (16#670#)
@@ -64,7 +64,7 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#B3E#) .. WWChar'Val (16#B44#)
     | WWChar'Val (16#B47#) .. WWChar'Val (16#B48#)
     | WWChar'Val (16#B4B#) .. WWChar'Val (16#B4D#)
-    | WWChar'Val (16#B55#) .. WWChar'Val (16#B57#)
+    | WWChar'Val (16#B53#) .. WWChar'Val (16#B57#)
     | WWChar'Val (16#B62#) .. WWChar'Val (16#B63#)
     | WWChar'Val (16#B82#)
     | WWChar'Val (16#BBE#) .. WWChar'Val (16#BC2#)
@@ -141,8 +141,7 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#1A55#) .. WWChar'Val (16#1A5E#)
     | WWChar'Val (16#1A60#) .. WWChar'Val (16#1A7C#)
     | WWChar'Val (16#1A7F#)
-    | WWChar'Val (16#1AB0#) .. WWChar'Val (16#1ADD#)
-    | WWChar'Val (16#1AE0#) .. WWChar'Val (16#1AEB#)
+    | WWChar'Val (16#1AB0#) .. WWChar'Val (16#1AF0#)
     | WWChar'Val (16#1B00#) .. WWChar'Val (16#1B04#)
     | WWChar'Val (16#1B34#) .. WWChar'Val (16#1B44#)
     | WWChar'Val (16#1B6B#) .. WWChar'Val (16#1B73#)
@@ -208,7 +207,8 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#10D24#) .. WWChar'Val (16#10D27#)
     | WWChar'Val (16#10D69#) .. WWChar'Val (16#10D6D#)
     | WWChar'Val (16#10EAB#) .. WWChar'Val (16#10EAC#)
-    | WWChar'Val (16#10EFA#) .. WWChar'Val (16#10EFF#)
+    | WWChar'Val (16#10ECB#) .. WWChar'Val (16#10ECF#)
+    | WWChar'Val (16#10EF0#) .. WWChar'Val (16#10EFF#)
     | WWChar'Val (16#10F46#) .. WWChar'Val (16#10F50#)
     | WWChar'Val (16#10F82#) .. WWChar'Val (16#10F85#)
     | WWChar'Val (16#11000#) .. WWChar'Val (16#11002#)
@@ -283,6 +283,7 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#11D8A#) .. WWChar'Val (16#11D8E#)
     | WWChar'Val (16#11D90#) .. WWChar'Val (16#11D91#)
     | WWChar'Val (16#11D93#) .. WWChar'Val (16#11D97#)
+    | WWChar'Val (16#11DF0#)
     | WWChar'Val (16#11EF3#) .. WWChar'Val (16#11EF6#)
     | WWChar'Val (16#11F00#) .. WWChar'Val (16#11F01#)
     | WWChar'Val (16#11F03#)
@@ -302,12 +303,17 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#1BC9D#) .. WWChar'Val (16#1BC9E#)
     | WWChar'Val (16#1CF00#) .. WWChar'Val (16#1CF2D#)
     | WWChar'Val (16#1CF30#) .. WWChar'Val (16#1CF46#)
+    | WWChar'Val (16#1D127#) .. WWChar'Val (16#1D128#)
     | WWChar'Val (16#1D165#) .. WWChar'Val (16#1D169#)
     | WWChar'Val (16#1D16D#) .. WWChar'Val (16#1D172#)
     | WWChar'Val (16#1D17B#) .. WWChar'Val (16#1D182#)
     | WWChar'Val (16#1D185#) .. WWChar'Val (16#1D18B#)
     | WWChar'Val (16#1D1AA#) .. WWChar'Val (16#1D1AD#)
     | WWChar'Val (16#1D242#) .. WWChar'Val (16#1D244#)
+    | WWChar'Val (16#1D250#) .. WWChar'Val (16#1D252#)
+    | WWChar'Val (16#1D25B#) .. WWChar'Val (16#1D25C#)
+    | WWChar'Val (16#1D25F#)
+    | WWChar'Val (16#1D280#) .. WWChar'Val (16#1D281#)
     | WWChar'Val (16#1DA00#) .. WWChar'Val (16#1DA36#)
     | WWChar'Val (16#1DA3B#) .. WWChar'Val (16#1DA6C#)
     | WWChar'Val (16#1DA75#)
@@ -975,6 +981,8 @@ package Umwi.Generated with Preelaborate is
       --  E13.0  [2] (🛖..🛗)    hut..elevator
     | WWChar'Val (16#1F6D8#)
       --  E17.0  [1] (🛘)       landslide
+    | WWChar'Val (16#1F6D9#)
+      --  E18.0  [1] (🛙)       lighthouse
     | WWChar'Val (16#1F6DC#)
       --  E15.0  [1] (🛜)       wireless
     | WWChar'Val (16#1F6DD#) .. WWChar'Val (16#1F6DF#)
@@ -1113,6 +1121,8 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🪉)       harp
     | WWChar'Val (16#1FA8A#)
       --  E17.0  [1] (🪊)       trombone
+    | WWChar'Val (16#1FA8B#) .. WWChar'Val (16#1FA8D#)
+      --  E18.0  [3] (🪋..🪍)    meteor..net with handle
     | WWChar'Val (16#1FA8E#)
       --  E17.0  [1] (🪎)       treasure chest
     | WWChar'Val (16#1FA8F#)
@@ -1143,6 +1153,8 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🫆)       fingerprint
     | WWChar'Val (16#1FAC8#)
       --  E17.0  [1] (🫈)       hairy creature
+    | WWChar'Val (16#1FACC#)
+      --  E18.0  [1] (🫌)       monarch butterfly
     | WWChar'Val (16#1FACD#)
       --  E17.0  [1] (🫍)       orca
     | WWChar'Val (16#1FACE#) .. WWChar'Val (16#1FACF#)
@@ -1155,6 +1167,8 @@ package Umwi.Generated with Preelaborate is
       --  E15.0  [2] (🫚..🫛)    ginger root..pea pod
     | WWChar'Val (16#1FADC#)
       --  E16.0  [1] (🫜)       root vegetable
+    | WWChar'Val (16#1FADD#)
+      --  E18.0  [1] (🫝)       pickle
     | WWChar'Val (16#1FADF#)
       --  E16.0  [1] (🫟)       splatter
     | WWChar'Val (16#1FAE0#) .. WWChar'Val (16#1FAE7#)
@@ -1165,12 +1179,16 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🫩)       face with bags under eyes
     | WWChar'Val (16#1FAEA#)
       --  E17.0  [1] (🫪)       distorted face
+    | WWChar'Val (16#1FAEB#)
+      --  E18.0  [1] (🫫)       cracking face
     | WWChar'Val (16#1FAEF#)
       --  E17.0  [1] (🫯)       fight cloud
     | WWChar'Val (16#1FAF0#) .. WWChar'Val (16#1FAF6#)
       --  E14.0  [7] (🫰..🫶)    hand with index finger and thumb crossed..heart hands
     | WWChar'Val (16#1FAF7#) .. WWChar'Val (16#1FAF8#)
       --  E15.0  [2] (🫷..🫸)    leftwards pushing hand..rightwards pushing hand
+    | WWChar'Val (16#1FAF9#) .. WWChar'Val (16#1FAFA#)
+      --  E18.0  [2] (🫹..🫺)    leftwards thumb sign..rightwards thumb sign
    ;
 
    subtype Emoji_Presentation is WWChar
@@ -1579,6 +1597,8 @@ package Umwi.Generated with Preelaborate is
       --  E13.0  [2] (🛖..🛗)    hut..elevator
     | WWChar'Val (16#1F6D8#)
       --  E17.0  [1] (🛘)       landslide
+    | WWChar'Val (16#1F6D9#)
+      --  E18.0  [1] (🛙)       lighthouse
     | WWChar'Val (16#1F6DC#)
       --  E15.0  [1] (🛜)       wireless
     | WWChar'Val (16#1F6DD#) .. WWChar'Val (16#1F6DF#)
@@ -1709,6 +1729,8 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🪉)       harp
     | WWChar'Val (16#1FA8A#)
       --  E17.0  [1] (🪊)       trombone
+    | WWChar'Val (16#1FA8B#) .. WWChar'Val (16#1FA8D#)
+      --  E18.0  [3] (🪋..🪍)    meteor..net with handle
     | WWChar'Val (16#1FA8E#)
       --  E17.0  [1] (🪎)       treasure chest
     | WWChar'Val (16#1FA8F#)
@@ -1739,6 +1761,8 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🫆)       fingerprint
     | WWChar'Val (16#1FAC8#)
       --  E17.0  [1] (🫈)       hairy creature
+    | WWChar'Val (16#1FACC#)
+      --  E18.0  [1] (🫌)       monarch butterfly
     | WWChar'Val (16#1FACD#)
       --  E17.0  [1] (🫍)       orca
     | WWChar'Val (16#1FACE#) .. WWChar'Val (16#1FACF#)
@@ -1751,6 +1775,8 @@ package Umwi.Generated with Preelaborate is
       --  E15.0  [2] (🫚..🫛)    ginger root..pea pod
     | WWChar'Val (16#1FADC#)
       --  E16.0  [1] (🫜)       root vegetable
+    | WWChar'Val (16#1FADD#)
+      --  E18.0  [1] (🫝)       pickle
     | WWChar'Val (16#1FADF#)
       --  E16.0  [1] (🫟)       splatter
     | WWChar'Val (16#1FAE0#) .. WWChar'Val (16#1FAE7#)
@@ -1761,12 +1787,16 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🫩)       face with bags under eyes
     | WWChar'Val (16#1FAEA#)
       --  E17.0  [1] (🫪)       distorted face
+    | WWChar'Val (16#1FAEB#)
+      --  E18.0  [1] (🫫)       cracking face
     | WWChar'Val (16#1FAEF#)
       --  E17.0  [1] (🫯)       fight cloud
     | WWChar'Val (16#1FAF0#) .. WWChar'Val (16#1FAF6#)
       --  E14.0  [7] (🫰..🫶)    hand with index finger and thumb crossed..heart hands
     | WWChar'Val (16#1FAF7#) .. WWChar'Val (16#1FAF8#)
       --  E15.0  [2] (🫷..🫸)    leftwards pushing hand..rightwards pushing hand
+    | WWChar'Val (16#1FAF9#) .. WWChar'Val (16#1FAFA#)
+      --  E18.0  [2] (🫹..🫺)    leftwards thumb sign..rightwards thumb sign
    ;
 
    subtype Emoji_Modifier_Base is WWChar
@@ -1871,6 +1901,8 @@ package Umwi.Generated with Preelaborate is
       --  E14.0  [7] (🫰..🫶)    hand with index finger and thumb crossed..heart hands
     | WWChar'Val (16#1FAF7#) .. WWChar'Val (16#1FAF8#)
       --  E15.0  [2] (🫷..🫸)    leftwards pushing hand..rightwards pushing hand
+    | WWChar'Val (16#1FAF9#) .. WWChar'Val (16#1FAFA#)
+      --  E18.0  [2] (🫹..🫺)    leftwards thumb sign..rightwards thumb sign
    ;
 
    subtype Emoji_Modifier is WWChar
@@ -2151,8 +2183,8 @@ package Umwi.Generated with Preelaborate is
       --  E0.6   [1] (🆎)       AB button (blood type)
     | WWChar'Val (16#1F191#) .. WWChar'Val (16#1F19A#)
       --  E0.6  [10] (🆑..🆚)    CL button..VS button
-    | WWChar'Val (16#1F1AE#) .. WWChar'Val (16#1F1E5#)
-      --  E0.0  [56] (🆮..🇥)    <reserved-1F1AE>..<reserved-1F1E5>
+    | WWChar'Val (16#1F1AF#) .. WWChar'Val (16#1F1E5#)
+      --  E0.0  [55] (🆯..🇥)    <reserved-1F1AF>..<reserved-1F1E5>
     | WWChar'Val (16#1F201#) .. WWChar'Val (16#1F202#)
       --  E0.6   [2] (🈁..🈂️)    Japanese “here” button..Japanese “service charge” button
     | WWChar'Val (16#1F203#) .. WWChar'Val (16#1F20F#)
@@ -2563,8 +2595,10 @@ package Umwi.Generated with Preelaborate is
       --  E13.0  [2] (🛖..🛗)    hut..elevator
     | WWChar'Val (16#1F6D8#)
       --  E17.0  [1] (🛘)       landslide
-    | WWChar'Val (16#1F6D9#) .. WWChar'Val (16#1F6DB#)
-      --  E0.0   [3] (🛙..🛛)    <reserved-1F6D9>..<reserved-1F6DB>
+    | WWChar'Val (16#1F6D9#)
+      --  E18.0  [1] (🛙)       lighthouse
+    | WWChar'Val (16#1F6DA#) .. WWChar'Val (16#1F6DB#)
+      --  E0.0   [2] (🛚..🛛)    <reserved-1F6DA>..<reserved-1F6DB>
     | WWChar'Val (16#1F6DC#)
       --  E15.0  [1] (🛜)       wireless
     | WWChar'Val (16#1F6DD#) .. WWChar'Val (16#1F6DF#)
@@ -2593,16 +2627,14 @@ package Umwi.Generated with Preelaborate is
       --  E13.0  [2] (🛻..🛼)    pickup truck..roller skate
     | WWChar'Val (16#1F6FD#) .. WWChar'Val (16#1F6FF#)
       --  E0.0   [3] (🛽..🛿)    <reserved-1F6FD>..<reserved-1F6FF>
-    | WWChar'Val (16#1F7DA#) .. WWChar'Val (16#1F7DF#)
-      --  E0.0   [6] (🟚..🟟)    <reserved-1F7DA>..<reserved-1F7DF>
+    | WWChar'Val (16#1F7DC#) .. WWChar'Val (16#1F7DF#)
+      --  E0.0   [4] (🟜..🟟)    <reserved-1F7DC>..<reserved-1F7DF>
     | WWChar'Val (16#1F7E0#) .. WWChar'Val (16#1F7EB#)
       --  E12.0 [12] (🟠..🟫)    orange circle..brown square
     | WWChar'Val (16#1F7EC#) .. WWChar'Val (16#1F7EF#)
       --  E0.0   [4] (🟬..🟯)    <reserved-1F7EC>..<reserved-1F7EF>
     | WWChar'Val (16#1F7F0#)
       --  E14.0  [1] (🟰)       heavy equals sign
-    | WWChar'Val (16#1F7F1#) .. WWChar'Val (16#1F7FF#)
-      --  E0.0  [15] (🟱..🟿)    <reserved-1F7F1>..<reserved-1F7FF>
     | WWChar'Val (16#1F80C#) .. WWChar'Val (16#1F80F#)
       --  E0.0   [4] (🠌..🠏)    <reserved-1F80C>..<reserved-1F80F>
     | WWChar'Val (16#1F848#) .. WWChar'Val (16#1F84F#)
@@ -2736,7 +2768,7 @@ package Umwi.Generated with Preelaborate is
     | WWChar'Val (16#1FA8A#)
       --  E17.0  [1] (🪊)       trombone
     | WWChar'Val (16#1FA8B#) .. WWChar'Val (16#1FA8D#)
-      --  E0.0   [3] (🪋..🪍)    <reserved-1FA8B>..<reserved-1FA8D>
+      --  E18.0  [3] (🪋..🪍)    meteor..net with handle
     | WWChar'Val (16#1FA8E#)
       --  E17.0  [1] (🪎)       treasure chest
     | WWChar'Val (16#1FA8F#)
@@ -2769,8 +2801,10 @@ package Umwi.Generated with Preelaborate is
       --  E0.0   [1] (🫇)       <reserved-1FAC7>
     | WWChar'Val (16#1FAC8#)
       --  E17.0  [1] (🫈)       hairy creature
-    | WWChar'Val (16#1FAC9#) .. WWChar'Val (16#1FACC#)
-      --  E0.0   [4] (🫉..🫌)    <reserved-1FAC9>..<reserved-1FACC>
+    | WWChar'Val (16#1FAC9#) .. WWChar'Val (16#1FACB#)
+      --  E0.0   [3] (🫉..🫋)    <reserved-1FAC9>..<reserved-1FACB>
+    | WWChar'Val (16#1FACC#)
+      --  E18.0  [1] (🫌)       monarch butterfly
     | WWChar'Val (16#1FACD#)
       --  E17.0  [1] (🫍)       orca
     | WWChar'Val (16#1FACE#) .. WWChar'Val (16#1FACF#)
@@ -2783,8 +2817,10 @@ package Umwi.Generated with Preelaborate is
       --  E15.0  [2] (🫚..🫛)    ginger root..pea pod
     | WWChar'Val (16#1FADC#)
       --  E16.0  [1] (🫜)       root vegetable
-    | WWChar'Val (16#1FADD#) .. WWChar'Val (16#1FADE#)
-      --  E0.0   [2] (🫝..🫞)    <reserved-1FADD>..<reserved-1FADE>
+    | WWChar'Val (16#1FADD#)
+      --  E18.0  [1] (🫝)       pickle
+    | WWChar'Val (16#1FADE#)
+      --  E0.0   [1] (🫞)       <reserved-1FADE>
     | WWChar'Val (16#1FADF#)
       --  E16.0  [1] (🫟)       splatter
     | WWChar'Val (16#1FAE0#) .. WWChar'Val (16#1FAE7#)
@@ -2795,16 +2831,20 @@ package Umwi.Generated with Preelaborate is
       --  E16.0  [1] (🫩)       face with bags under eyes
     | WWChar'Val (16#1FAEA#)
       --  E17.0  [1] (🫪)       distorted face
-    | WWChar'Val (16#1FAEB#) .. WWChar'Val (16#1FAEE#)
-      --  E0.0   [4] (🫫..🫮)    <reserved-1FAEB>..<reserved-1FAEE>
+    | WWChar'Val (16#1FAEB#)
+      --  E18.0  [1] (🫫)       cracking face
+    | WWChar'Val (16#1FAEC#) .. WWChar'Val (16#1FAEE#)
+      --  E0.0   [3] (🫬..🫮)    <reserved-1FAEC>..<reserved-1FAEE>
     | WWChar'Val (16#1FAEF#)
       --  E17.0  [1] (🫯)       fight cloud
     | WWChar'Val (16#1FAF0#) .. WWChar'Val (16#1FAF6#)
       --  E14.0  [7] (🫰..🫶)    hand with index finger and thumb crossed..heart hands
     | WWChar'Val (16#1FAF7#) .. WWChar'Val (16#1FAF8#)
       --  E15.0  [2] (🫷..🫸)    leftwards pushing hand..rightwards pushing hand
-    | WWChar'Val (16#1FAF9#) .. WWChar'Val (16#1FAFF#)
-      --  E0.0   [7] (🫹..🫿)    <reserved-1FAF9>..<reserved-1FAFF>
+    | WWChar'Val (16#1FAF9#) .. WWChar'Val (16#1FAFA#)
+      --  E18.0  [2] (🫹..🫺)    leftwards thumb sign..rightwards thumb sign
+    | WWChar'Val (16#1FAFB#) .. WWChar'Val (16#1FAFF#)
+      --  E0.0   [5] (🫻..🫿)    <reserved-1FAFB>..<reserved-1FAFF>
     | WWChar'Val (16#1FC00#) .. WWChar'Val (16#1FFFD#)
       --  E0.0[1022] (🰀..🿽)    <reserved-1FC00>..<reserved-1FFFD>
    ;
@@ -3729,14 +3769,18 @@ package Umwi.Generated with Preelaborate is
       --  Lo  [6144] TANGUT IDEOGRAPH-17000..TANGUT IDEOGRAPH-187FF
       when WWChar'Val (16#18800#) .. WWChar'Val (16#18AFF#) => W,
       --  Lo   [768] TANGUT COMPONENT-001..TANGUT COMPONENT-768
-      when WWChar'Val (16#18B00#) .. WWChar'Val (16#18CD5#) => W,
-      --  Lo   [470] KHITAN SMALL SCRIPT CHARACTER-18B00..KHITAN SMALL SCRIPT CHARACTER-18CD5
+      when WWChar'Val (16#18B00#) .. WWChar'Val (16#18CDA#) => W,
+      --  Lo   [475] KHITAN SMALL SCRIPT CHARACTER-18B00..KHITAN SMALL SCRIPT CHARACTER-18CDA
       when WWChar'Val (16#18CFF#) .. WWChar'Val (16#18CFF#) => W,
       --  Lo         KHITAN SMALL SCRIPT CHARACTER-18CFF
-      when WWChar'Val (16#18D00#) .. WWChar'Val (16#18D1E#) => W,
-      --  Lo    [31] TANGUT IDEOGRAPH-18D00..TANGUT IDEOGRAPH-18D1E
+      when WWChar'Val (16#18D00#) .. WWChar'Val (16#18D20#) => W,
+      --  Lo    [33] TANGUT IDEOGRAPH-18D00..TANGUT IDEOGRAPH-18D20
       when WWChar'Val (16#18D80#) .. WWChar'Val (16#18DF2#) => W,
       --  Lo   [115] TANGUT COMPONENT-769..TANGUT COMPONENT-883
+      when WWChar'Val (16#18E00#) .. WWChar'Val (16#19191#) => W,
+      --  Lo   [914] JURCHEN CHARACTER-18E00..JURCHEN CHARACTER-19191
+      when WWChar'Val (16#191A0#) .. WWChar'Val (16#191D2#) => W,
+      --  Lo    [51] JURCHEN RADICAL-01..JURCHEN RADICAL-51
       when WWChar'Val (16#1AFF0#) .. WWChar'Val (16#1AFF3#) => W,
       --  Lm     [4] KATAKANA LETTER MINNAN TONE-2..KATAKANA LETTER MINNAN TONE-5
       when WWChar'Val (16#1AFF5#) .. WWChar'Val (16#1AFFB#) => W,
@@ -3745,16 +3789,16 @@ package Umwi.Generated with Preelaborate is
       --  Lm     [2] KATAKANA LETTER MINNAN NASALIZED TONE-7..KATAKANA LETTER MINNAN NASALIZED TONE-8
       when WWChar'Val (16#1B000#) .. WWChar'Val (16#1B0FF#) => W,
       --  Lo   [256] KATAKANA LETTER ARCHAIC E..HENTAIGANA LETTER RE-2
-      when WWChar'Val (16#1B100#) .. WWChar'Val (16#1B122#) => W,
-      --  Lo    [35] HENTAIGANA LETTER RE-3..KATAKANA LETTER ARCHAIC WU
+      when WWChar'Val (16#1B100#) .. WWChar'Val (16#1B128#) => W,
+      --  Lo    [41] HENTAIGANA LETTER RE-3..KATAKANA LETTER ALTERNATE WI
       when WWChar'Val (16#1B132#) .. WWChar'Val (16#1B132#) => W,
       --  Lo         HIRAGANA LETTER SMALL KO
       when WWChar'Val (16#1B150#) .. WWChar'Val (16#1B152#) => W,
       --  Lo     [3] HIRAGANA LETTER SMALL WI..HIRAGANA LETTER SMALL WO
       when WWChar'Val (16#1B155#) .. WWChar'Val (16#1B155#) => W,
       --  Lo         KATAKANA LETTER SMALL KO
-      when WWChar'Val (16#1B164#) .. WWChar'Val (16#1B167#) => W,
-      --  Lo     [4] KATAKANA LETTER SMALL WI..KATAKANA LETTER SMALL N
+      when WWChar'Val (16#1B164#) .. WWChar'Val (16#1B168#) => W,
+      --  Lo     [5] KATAKANA LETTER SMALL WI..KATAKANA LETTER SMALL ARCHAIC YE
       when WWChar'Val (16#1B170#) .. WWChar'Val (16#1B2FB#) => W,
       --  Lo   [396] NUSHU CHARACTER-1B170..NUSHU CHARACTER-1B2FB
       when WWChar'Val (16#1D300#) .. WWChar'Val (16#1D356#) => W,
@@ -3781,6 +3825,8 @@ package Umwi.Generated with Preelaborate is
       --  So    [10] SQUARED CL..SQUARED VS
       when WWChar'Val (16#1F19B#) .. WWChar'Val (16#1F1AC#) => A,
       --  So    [18] SQUARED THREE D..SQUARED VOD
+      when WWChar'Val (16#1F1AE#) .. WWChar'Val (16#1F1AE#) => W,
+      --  So         TOMOBIKI SYMBOL
       when WWChar'Val (16#1F200#) .. WWChar'Val (16#1F202#) => W,
       --  So     [3] SQUARE HIRAGANA HOKA..SQUARED KATAKANA SA
       when WWChar'Val (16#1F210#) .. WWChar'Val (16#1F23B#) => W,
@@ -3839,14 +3885,16 @@ package Umwi.Generated with Preelaborate is
       --  So         SLEEPING ACCOMMODATION
       when WWChar'Val (16#1F6D0#) .. WWChar'Val (16#1F6D2#) => W,
       --  So     [3] PLACE OF WORSHIP..SHOPPING TROLLEY
-      when WWChar'Val (16#1F6D5#) .. WWChar'Val (16#1F6D8#) => W,
-      --  So     [4] HINDU TEMPLE..LANDSLIDE
+      when WWChar'Val (16#1F6D5#) .. WWChar'Val (16#1F6D9#) => W,
+      --  So     [5] HINDU TEMPLE..LIGHTHOUSE
       when WWChar'Val (16#1F6DC#) .. WWChar'Val (16#1F6DF#) => W,
       --  So     [4] WIRELESS..RING BUOY
       when WWChar'Val (16#1F6EB#) .. WWChar'Val (16#1F6EC#) => W,
       --  So     [2] AIRPLANE DEPARTURE..AIRPLANE ARRIVING
       when WWChar'Val (16#1F6F4#) .. WWChar'Val (16#1F6FC#) => W,
       --  So     [9] SCOOTER..ROLLER SKATE
+      when WWChar'Val (16#1F7DA#) .. WWChar'Val (16#1F7DA#) => W,
+      --  So         BLACK CIRCLE WITH WHITE VERTICAL BAR
       when WWChar'Val (16#1F7E0#) .. WWChar'Val (16#1F7EB#) => W,
       --  So    [12] LARGE ORANGE CIRCLE..LARGE BROWN SQUARE
       when WWChar'Val (16#1F7F0#) .. WWChar'Val (16#1F7F0#) => W,
@@ -3859,26 +3907,24 @@ package Umwi.Generated with Preelaborate is
       --  So   [185] FIRST PLACE MEDAL..NAZAR AMULET
       when WWChar'Val (16#1FA70#) .. WWChar'Val (16#1FA7C#) => W,
       --  So    [13] BALLET SHOES..CRUTCH
-      when WWChar'Val (16#1FA80#) .. WWChar'Val (16#1FA8A#) => W,
-      --  So    [11] YO-YO..TROMBONE
-      when WWChar'Val (16#1FA8E#) .. WWChar'Val (16#1FAC6#) => W,
-      --  So    [57] TREASURE CHEST..FINGERPRINT
+      when WWChar'Val (16#1FA80#) .. WWChar'Val (16#1FAC6#) => W,
+      --  So    [71] YO-YO..FINGERPRINT
       when WWChar'Val (16#1FAC8#) .. WWChar'Val (16#1FAC8#) => W,
       --  So         HAIRY CREATURE
-      when WWChar'Val (16#1FACD#) .. WWChar'Val (16#1FADC#) => W,
-      --  So    [16] ORCA..ROOT VEGETABLE
-      when WWChar'Val (16#1FADF#) .. WWChar'Val (16#1FAEA#) => W,
-      --  So    [12] SPLATTER..DISTORTED FACE
-      when WWChar'Val (16#1FAEF#) .. WWChar'Val (16#1FAF8#) => W,
-      --  So    [10] FIGHT CLOUD..RIGHTWARDS PUSHING HAND
+      when WWChar'Val (16#1FACC#) .. WWChar'Val (16#1FADD#) => W,
+      --  So    [18] MONARCH BUTTERFLY..PICKLE
+      when WWChar'Val (16#1FADF#) .. WWChar'Val (16#1FAEB#) => W,
+      --  So    [13] SPLATTER..CRACKING FACE
+      when WWChar'Val (16#1FAEF#) .. WWChar'Val (16#1FAFA#) => W,
+      --  So    [12] FIGHT CLOUD..RIGHTWARDS THUMB SIGN
       when WWChar'Val (16#20000#) .. WWChar'Val (16#2A6DF#) => W,
       --  Lo [42720] CJK UNIFIED IDEOGRAPH-20000..CJK UNIFIED IDEOGRAPH-2A6DF
       when WWChar'Val (16#2A6E0#) .. WWChar'Val (16#2A6FF#) => W,
       --  Cn    [32] <reserved-2A6E0>..<reserved-2A6FF>
-      when WWChar'Val (16#2A700#) .. WWChar'Val (16#2B81D#) => W,
-      --  Lo  [4382] CJK UNIFIED IDEOGRAPH-2A700..CJK UNIFIED IDEOGRAPH-2B81D
-      when WWChar'Val (16#2B81E#) .. WWChar'Val (16#2B81F#) => W,
-      --  Cn     [2] <reserved-2B81E>..<reserved-2B81F>
+      when WWChar'Val (16#2A700#) .. WWChar'Val (16#2B81E#) => W,
+      --  Lo  [4383] CJK UNIFIED IDEOGRAPH-2A700..CJK UNIFIED IDEOGRAPH-2B81E
+      when WWChar'Val (16#2B81F#) .. WWChar'Val (16#2B81F#) => W,
+      --  Cn         <reserved-2B81F>
       when WWChar'Val (16#2B820#) .. WWChar'Val (16#2CEAD#) => W,
       --  Lo  [5774] CJK UNIFIED IDEOGRAPH-2B820..CJK UNIFIED IDEOGRAPH-2CEAD
       when WWChar'Val (16#2CEAE#) .. WWChar'Val (16#2CEAF#) => W,
@@ -3903,8 +3949,12 @@ package Umwi.Generated with Preelaborate is
       --  Cn     [5] <reserved-3134B>..<reserved-3134F>
       when WWChar'Val (16#31350#) .. WWChar'Val (16#33479#) => W,
       --  Lo  [8490] CJK UNIFIED IDEOGRAPH-31350..CJK UNIFIED IDEOGRAPH-33479
-      when WWChar'Val (16#3347A#) .. WWChar'Val (16#3FFFD#) => W,
-      --  Cn [52100] <reserved-3347A>..<reserved-3FFFD>
+      when WWChar'Val (16#3347A#) .. WWChar'Val (16#3CFFF#) => W,
+      --  Cn [39814] <reserved-3347A>..<reserved-3CFFF>
+      when WWChar'Val (16#3D000#) .. WWChar'Val (16#3FC3F#) => W,
+      --  Lo [11328] SMALL SEAL CHARACTER-3D000..SMALL SEAL CHARACTER-3FC3F
+      when WWChar'Val (16#3FC40#) .. WWChar'Val (16#3FFFD#) => W,
+      --  Cn   [958] <reserved-3FC40>..<reserved-3FFFD>
       when WWChar'Val (16#E0100#) .. WWChar'Val (16#E01EF#) => A,
       --  Mn   [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
       when WWChar'Val (16#F0000#) .. WWChar'Val (16#FFFFD#) => A,
