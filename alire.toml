@@ -1,10 +1,10 @@
 name = "umwi"
 description = "Unicode Monospace Width Information"
-version = "0.2.0"
+version = "0.3.0-dev"
 
 authors = ["Alejandro R. Mosteo", "Quentin DAUPRAT (Heziode)"]
 maintainers = ["Alejandro R. Mosteo <alejandro@mosteo.com>", "Quentin DAUPRAT (Heziode) <contact@adarium.dev>"]
 maintainers-logins = ["mosteo", "heziode"]
-licenses = "LGPL-3.0-or-later"
+licenses = "LGPL-3.0-or-later OR Apache-2.0"
 website = ""
 tags = ["unicode", "emoji", "emoticon", "monospace", "east", "asian", "width", "grapheme", "cluster", "combining"]
