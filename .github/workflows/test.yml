@@ -22,9 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: alire-project/setup-alire@v4
-        with:
-          version: "2.1.0"
+      - uses: alire-project/setup-alire@latest
 
       - name: Build umwi library
         run: alr -n build
